@@ -3,8 +3,8 @@ using server.Models;
 namespace server.Models;
 
 public class Theatre {
-    public int Id;
-    public string Name;
-    public string Location;
-    public ICollection<Show> Shows;
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Location { get; set; }
+    public ICollection<Show> Shows { get; set; }
 }
