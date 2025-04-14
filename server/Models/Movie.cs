@@ -11,7 +11,8 @@ public class Movie
     public float Rating { get; set; }
     public string Genre { get; set; }
     public DateTime ReleaseDate { get; set; }  
-    public bool isActive { get ; set; }
+    public string ImageUrl { get; set; } // URL to the movie poster or image
+    public bool isActive { get ; set; } 
     public ICollection<Show> Shows { get; set; }
     public ICollection<Review> Reviews { get; set; } // List of reviews for this movie
 
