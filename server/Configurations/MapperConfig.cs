@@ -14,5 +14,7 @@ public class MapperConfig : Profile {
         CreateMap<Movie, UpdateMovieDTO>().ReverseMap();  
         CreateMap<Review, GetReviewDTO >().ReverseMap();
         CreateMap<Show, GetShowDTO>().ReverseMap();
+        CreateMap<Show, CreateShowDTO>().ReverseMap();
+        CreateMap<Show, GetShowsDTO>().ReverseMap();
     }
 }
