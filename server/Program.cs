@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using server.Configurations;
 using server.Data;
+using server.Interface;
+using server.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,9 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader());
 });
 
+builder.Services.AddAutoMapper(typeof(MapperConfig)); // Register AutoMapper
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); // Register Generic Repository
+builder.Services.AddScoped<IMoviesRepository, MoviesRepository>(); // Register Movies Repository
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
