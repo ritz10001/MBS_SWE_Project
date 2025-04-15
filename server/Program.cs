@@ -26,6 +26,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAutoMapper(typeof(MapperConfig)); // Register AutoMapper
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); // Register Generic Repository
 builder.Services.AddScoped<IMoviesRepository, MoviesRepository>(); // Register Movies Repository
+builder.Services.AddScoped<IShowsRepostory, ShowsRepository>(); // Register Shows Repository
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
