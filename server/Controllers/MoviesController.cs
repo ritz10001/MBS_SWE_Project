@@ -38,9 +38,6 @@ public class MoviesController : ControllerBase {
 
     [HttpPut("{id}")]
     public async Task<IActionResult> PutMovie(int id, UpdateMovieDTO updateMovieDTO) {
-        if (id != updateMovieDTO.Id) {
-            return BadRequest();
-        }
 
         var movie = await _moviesRepository.GetAsync(id);
 
