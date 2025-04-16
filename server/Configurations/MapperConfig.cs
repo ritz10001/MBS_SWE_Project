@@ -13,11 +13,13 @@ public class MapperConfig : Profile {
         CreateMap<Movie, GetMovieDTO>().ReverseMap();
         CreateMap<Movie, GetMoviesDTO>().ReverseMap();
         CreateMap<Movie, UpdateMovieDTO>().ReverseMap();  
-        CreateMap<Review, GetReviewDTO >().ReverseMap();
         CreateMap<Show, GetShowDTO>().ReverseMap();
         CreateMap<Show, CreateShowDTO>().ReverseMap();
         CreateMap<Show, GetShowsDTO>().ReverseMap();
         CreateMap<Theatre, GetTheatresDTO>().ReverseMap();
         CreateMap<Theatre, GetTheatreDTO>().ReverseMap();
+        CreateMap<Review, CreateReviewDTO>().ReverseMap();  
+        CreateMap<Review, UpdateReviewDTO>().ReverseMap();
+        CreateMap<Review, GetReviewDTO >().ReverseMap();
     }
 }

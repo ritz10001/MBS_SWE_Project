@@ -28,6 +28,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IMoviesRepository, MoviesRepository>(); // Register Movies Repository
 builder.Services.AddScoped<IShowsRepostory, ShowsRepository>(); // Register Shows Repository
 builder.Services.AddScoped<ITheatresRepository, TheatresRepository>(); // Register Theatres Repository
+builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>(); // Register Reviews Repository
 
 var app = builder.Build();
 
