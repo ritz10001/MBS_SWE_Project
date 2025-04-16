@@ -3,6 +3,7 @@ using server.Models;
 using server.Models.Movies;
 using server.Models.Reviews;
 using server.Models.Shows;
+using server.Models.Theatres;
 
 namespace server.Configurations;
 
@@ -16,5 +17,7 @@ public class MapperConfig : Profile {
         CreateMap<Show, GetShowDTO>().ReverseMap();
         CreateMap<Show, CreateShowDTO>().ReverseMap();
         CreateMap<Show, GetShowsDTO>().ReverseMap();
+        CreateMap<Theatre, GetTheatresDTO>().ReverseMap();
+        CreateMap<Theatre, GetTheatreDTO>().ReverseMap();
     }
 }

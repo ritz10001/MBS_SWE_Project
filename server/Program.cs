@@ -27,6 +27,8 @@ builder.Services.AddAutoMapper(typeof(MapperConfig)); // Register AutoMapper
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); // Register Generic Repository
 builder.Services.AddScoped<IMoviesRepository, MoviesRepository>(); // Register Movies Repository
 builder.Services.AddScoped<IShowsRepostory, ShowsRepository>(); // Register Shows Repository
+builder.Services.AddScoped<ITheatresRepository, TheatresRepository>(); // Register Theatres Repository
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

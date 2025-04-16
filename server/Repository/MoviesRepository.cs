@@ -33,9 +33,5 @@ public class MoviesRepository : GenericRepository<Movie>, IMoviesRepository
             Shows = m.Shows.Where(s => s.isActive).ToList()
         })
         .FirstOrDefaultAsync();
-        // return await _context.Movies
-        // .Include(q => q.Reviews)
-        // .Include(q => q.Shows) 
-        // .FirstOrDefaultAsync(q => q.Id == id);
     }
 }
