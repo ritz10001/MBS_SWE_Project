@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using server.Configurations;
 using server.Data;
@@ -10,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("MBSConnectionString");
 builder.Services.AddDbContext<MBSDbContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddIdentityCore<User>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<MBSDbContext>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -29,6 +34,7 @@ builder.Services.AddScoped<IMoviesRepository, MoviesRepository>(); // Register M
 builder.Services.AddScoped<IShowsRepostory, ShowsRepository>(); // Register Shows Repository
 builder.Services.AddScoped<ITheatresRepository, TheatresRepository>(); // Register Theatres Repository
 builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>(); // Register Reviews Repository
+builder.Services.AddScoped<IAuthService, AuthService>(); // Register Auth Service
 
 var app = builder.Build();
 
