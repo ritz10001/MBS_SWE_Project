@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server.Data;
 
@@ -11,9 +12,11 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(MBSDbContext))]
-    partial class MBSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250417223407_MakeUserIdNullableInReview")]
+    partial class MakeUserIdNullableInReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d3502111-e403-4318-8399-bd22eaaa2ec8",
+                            Id = "fde59a4e-33b9-4f6d-835d-dac6d5b14fe0",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "c7643edb-c909-448c-8cb2-716c6342684c",
+                            Id = "0013a9d7-d3e6-47ca-ac36-cc83fe625679",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -267,14 +270,9 @@ namespace server.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ShowId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Booking");
                 });
@@ -768,13 +766,7 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Data.User", "User")
-                        .WithMany("Bookings")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Show");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("server.Models.Payment", b =>
@@ -797,7 +789,7 @@ namespace server.Migrations
                         .IsRequired();
 
                     b.HasOne("server.Data.User", "User")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("Movie");
@@ -835,16 +827,10 @@ namespace server.Migrations
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("server.Data.User", b =>
-                {
-                    b.Navigation("Bookings");
-
-                    b.Navigation("Reviews");
-                });
-
             modelBuilder.Entity("server.Models.Booking", b =>
                 {
-                    b.Navigation("Payment");
+                    b.Navigation("Payment")
+                        .IsRequired();
 
                     b.Navigation("Tickets");
                 });
