@@ -13,7 +13,7 @@ public class MoviesRepository : GenericRepository<Movie>, IMoviesRepository
         _context = context;
     }
 
-    public async Task<Movie> GetMovieWithReviews(int id)
+    public async Task<Movie?> GetMovieWithReviews(int id)
     {
         return await _context.Movies
         .Where(m => m.Id == id)
@@ -29,8 +29,22 @@ public class MoviesRepository : GenericRepository<Movie>, IMoviesRepository
             Genre = m.Genre,
             ReleaseDate = m.ReleaseDate,
             ImageUrl = m.ImageUrl,
-            Reviews = m.Reviews.ToList(),
-            Shows = m.Shows.Where(s => s.isActive).ToList()
+            Shows = m.Shows.Where(s => s.isActive).ToList(),
+            Reviews = m.Reviews.Select(r => new Review
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                MovieId = r.MovieId,
+                Comment = r.Comment,
+                Rating = r.Rating,
+                ReviewDate = r.ReviewDate,
+                User = new User
+                {
+                    Id = r.User.Id,
+                    UserName = r.User.UserName,
+                    Email = r.User.Email
+                }
+            }).ToList()
         })
         .FirstOrDefaultAsync();
     }

@@ -31,4 +31,18 @@ public class AccountController : ControllerBase {
         return Ok(new { message = "User registered successfully" });
     }
 
+    [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+    public async Task<ActionResult> Login([FromBody] LoginDTO loginDTO) {
+        var authResponse = await _authService.Login(loginDTO);
+
+        if(authResponse == null) {
+            return BadRequest(new { message = "Invalid login Credentials" });
+        }
+        return Ok(authResponse);
+    }
+
 }

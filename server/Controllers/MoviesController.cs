@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
@@ -10,7 +11,6 @@ namespace server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-
 public class MoviesController : ControllerBase {
     private readonly IMapper _mapper;
     private readonly IMoviesRepository _moviesRepository;
@@ -38,7 +38,7 @@ public class MoviesController : ControllerBase {
 
     [HttpPut("{id}")]
     public async Task<IActionResult> PutMovie(int id, UpdateMovieDTO updateMovieDTO) {
-
+ 
         var movie = await _moviesRepository.GetAsync(id);
 
         if(movie == null) {
