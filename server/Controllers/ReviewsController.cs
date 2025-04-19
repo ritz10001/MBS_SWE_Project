@@ -26,7 +26,7 @@ public class ReviewsController : ControllerBase {
     // [Authorize(Roles = "User, Admininistrator")]
     public async Task<IActionResult> AddReview(CreateReviewDTO createReviewDTO) {
         var review = _mapper.Map<Review>(createReviewDTO);
-        review.UserId = GetUserId(); // Get the current user's ID from the JWT token
+        // review.UserId = GetUserId(); // Get the current user's ID from the JWT token
         await _reviewsRepository.AddAsync(review);
         return Ok();
     }   
