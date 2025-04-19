@@ -7,7 +7,7 @@ public class Booking {
     public int Id { get; set; } 
     public DateTime BookingDate { get; set; }  
     public decimal TotalAmount { get; set; }
-    public string PaymentStatus { get; set; } // e.g., "Credit Card", "Debit Card", "Cash"
+    public string PaymentStatus { get; set; } 
     public int ShowId { get; set; } 
     public Show Show { get; set; }
     public ICollection<Ticket>? Tickets { get; set; } // List of tickets associated with this booking
