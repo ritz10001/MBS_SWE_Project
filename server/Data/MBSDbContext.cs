@@ -22,6 +22,12 @@ public class MBSDbContext : IdentityDbContext<User>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.Payment)
+            .WithOne(p => p.Booking)
+            .HasForeignKey<Payment>(p => p.BookingId) // Assuming BookingId is the foreign key in Payment
+            .OnDelete(DeleteBehavior.Cascade); // Optional: specify delete behavior
+        
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.ApplyConfiguration(new MovieConfiguration());

@@ -1,16 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 
-namespace server.Models;
-
-public class Payment {
+public class Payment
+{
     public int Id { get; set; }
+    public decimal Amount { get; set; } // Amount paid
+    public DateTime PaymentDate { get; set; } = DateTime.UtcNow; // Date and time of the payment
     public string PaymentMethod { get; set; } // e.g., "Credit Card", "Debit Card", "Cash"
-
     public string TransactionId { get; set; } // Unique identifier for the transaction  
-    public string Status { get; set; } // e.g., "Success", "Failed", "Pending"  
-    public DateTime PaymentDate { get; set; } // Date and time of the payment
-    public Booking Booking { get; set; } // Reference to the associated booking
+    public string PaymentStatus { get; set; } = "Pending"; // e.g., "Success", "Failed", "Pending"  
     public int BookingId { get; set; } // Foreign key to the Booking table
+    public Booking Booking { get; set; } // Reference to the associated booking
 
 }
