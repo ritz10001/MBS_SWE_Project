@@ -23,4 +23,13 @@ public class BookingsRepository : GenericRepository<Booking>, IBookingsRepositor
             .Include(b => b.Tickets)
             .ToListAsync();
     }
+
+    public async Task<Booking> GetBookingById(int id)
+    {
+        return await _context.Booking
+            .Include(b => b.Show)
+            .ThenInclude(s => s.Movie)
+            .Include(b => b.Tickets)
+            .FirstOrDefaultAsync(b => b.Id == id);
+    }
 }
