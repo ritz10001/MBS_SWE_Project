@@ -1,5 +1,6 @@
 
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using server.Interface;
 using server.Models;
@@ -24,19 +25,9 @@ public class BookingController : ControllerBase {
     }
 
     [HttpGet("getAllBookings")]
+    [Authorize(Roles = "Admin")] // Only Admins can access this endpoint
     public async Task<ActionResult<IEnumerable<GetBookingsDTO>>> GetBookings() {
         var records = await _bookingRepository.GetAllAsync();
-        var bookings = _mapper.Map<List<GetBookingsDTO>>(records);
-        return Ok(bookings);
-    }
-
-    [HttpGet("getMyBookings")]
-    public async Task<ActionResult<IEnumerable<GetBookingsDTO>>> GetMyBookings() {
-        var userId = GetUserId();
-        if(string.IsNullOrEmpty(userId)) {
-            return BadRequest("You must be logged in to view Booking information.");
-        }
-        var records = await _bookingRepository.GetBookingsByUserId(userId);
         if (records == null) {
             return NotFound();
         }
@@ -44,7 +35,41 @@ public class BookingController : ControllerBase {
         return Ok(bookings);
     }
 
+    [HttpGet("getMyBookings")]
+    [Authorize(Roles = "User, Admin")] // Only Users and Admins can access this endpoint
+    public async Task<ActionResult<IEnumerable<GetBookingsDTO>>> GetMyBookings() {
+        var userId = GetUserId();
+        if(string.IsNullOrEmpty(userId)) {
+            return BadRequest("You must be logged in to view Booking information.");
+        }
+        var records = await _bookingRepository.GetBookingsByUserId(userId);
+        foreach (var record in records)
+        {
+            Console.WriteLine($"Booking ID: {record.Id}, ShowId: {record.ShowId}");
+            Console.WriteLine($"Show is null? {record.Show == null}");
+            Console.WriteLine($"Movie is null? {record.Show?.Movie == null}");
+            Console.WriteLine($"Movie Title: {record.Show?.Movie?.Title}");
+        }
+
+        if (records == null) {
+            return NotFound();
+        }
+        
+        var bookings = records.Select(b => new GetBookingsDTO {
+            Id = b.Id,
+            BookingDate = b.BookingDate,
+            NumberOfTickets = b.Tickets?.Count ?? 0,
+            TotalAmount = b.TotalAmount,
+            ShowTime = b.Show?.ShowTime ?? DateTime.MinValue,
+            MovieTitle = b.Show?.Movie?.Title ?? "N/A",
+            TheaterName = b.Show?.Theatre?.Name ?? "N/A",
+            UserId = b.UserId
+        }).ToList();
+        return Ok(bookings);
+    }
+
     [HttpGet("getBooking/{id}")]
+    [Authorize(Roles = "User, Admin")] // Only Users and Admins can access this endpoint
     public async Task<ActionResult<GetBookingDTO>> GetBooking(int id) {
         var record = await _bookingRepository.GetBookingById(id);
         if (record == null) {
@@ -53,24 +78,25 @@ public class BookingController : ControllerBase {
         var tickets = await _ticketRepository.GetTicketsByBookingId(id);
         var booking = _mapper.Map<GetBookingDTO>(record);
         booking.Tickets = _mapper.Map<List<GetTicketsDTO>>(tickets);
+        booking.MovieTitle = record.Show.Movie.Title;
+        booking.ShowTime = record.Show.ShowTime;
+        booking.TheaterName = record.Show.Theatre.Name;
         return Ok(booking);
     }  
 
-    [HttpPost("createBooking")]
-    public async Task<ActionResult<CreateBookingDTO>> CreateBooking(CreateBookingDTO createBookingDTO) {
-        var userId = GetUserId();
-        if(string.IsNullOrEmpty(userId)) {
-            return BadRequest("You must be logged in to create a Booking.");
-        }
-        var booking = _mapper.Map<Booking>(createBookingDTO);
-        booking.UserId = userId; 
-        booking.PaymentStatus = "Pending"; // Assuming the payment is successful for this example
-        await _bookingRepository.AddAsync(booking);
+    // [HttpPost("createBooking")]
+    // public async Task<ActionResult<CreateBookingDTO>> CreateBooking(CreateBookingDTO createBookingDTO) {
+    //     var userId = GetUserId();
+    //     if(string.IsNullOrEmpty(userId)) {
+    //         return BadRequest("You must be logged in to create a Booking.");
+    //     }
+    //     var booking = _mapper.Map<Booking>(createBookingDTO);
+    //     booking.UserId = userId; 
+    //     booking.PaymentStatus = "Pending"; // Assuming the payment is successful for this example
+    //     await _bookingRepository.AddAsync(booking);
 
-        return CreatedAtAction(nameof(GetBookings), new { id = booking.Id }, booking);
-    }
-
-
+    //     return CreatedAtAction(nameof(GetBookings), new { id = booking.Id }, booking);
+    // }
     private string? GetUserId() {
         return User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
     }

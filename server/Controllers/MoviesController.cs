@@ -6,6 +6,7 @@ using server.Data;
 using server.Interface;
 using server.Models;
 using server.Models.Movies;
+using server.Models.Shows;
 
 namespace server.Controllers;
 
@@ -37,6 +38,7 @@ public class MoviesController : ControllerBase {
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutMovie(int id, UpdateMovieDTO updateMovieDTO) {
  
         var movie = await _moviesRepository.GetAsync(id);
@@ -61,6 +63,7 @@ public class MoviesController : ControllerBase {
     }
     
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Movie>> PostMovie(CreateMovieDTO createMovieDTO) {
         var movie = _mapper.Map<Movie>(createMovieDTO);
         await _moviesRepository.AddAsync(movie);
@@ -68,6 +71,7 @@ public class MoviesController : ControllerBase {
     }   
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteMovie(int id) {
         var movie = await _moviesRepository.GetAsync(id);
         if (movie == null) {

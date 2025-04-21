@@ -1,12 +1,17 @@
 
 
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Interface;
 using server.Models;
 using server.Models.Payments;
 using Server.Models.Payments;
 
-namespace server.Interface.Controllers;
+namespace server.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
 
 public class PaymentsController : ControllerBase {
     private readonly IMapper _mapper;
@@ -23,7 +28,8 @@ public class PaymentsController : ControllerBase {
     }
 
     [HttpPost("create")]
-    public async Task<ActionResult<CreatePaymentDTO>> CreatePayment(CreatePaymentDTO createPaymentDTO)
+    [Authorize(Roles = "User, Admin")] // Only Users and Admins can access this endpoint
+    public async Task<ActionResult<PaymentResponseDTO>> CreatePayment(CreatePaymentDTO createPaymentDTO)
     {
         if (createPaymentDTO == null)
         {
@@ -41,16 +47,6 @@ public class PaymentsController : ControllerBase {
         const decimal taxRate = 1.05m; // 5% tax rate
         decimal totalAmount = baseTicketPrice * createPaymentDTO.NumberOfTickets * taxRate; // Calculate total amount with tax
 
-        var payment = new Payment
-        {
-            Amount = totalAmount,
-            PaymentDate = DateTime.UtcNow,
-            PaymentMethod = createPaymentDTO.PaymentMethod,
-            TransactionId = GenerateTransactionId(),
-            PaymentStatus = "Success", // Assuming the payment is successful for this example
-        };
-        await _paymentsRepository.AddAsync(payment); // Save the payment to the database
-
         // Step 2 : Create a new Booking instance
         var booking = new Booking
         {
@@ -60,13 +56,22 @@ public class PaymentsController : ControllerBase {
             NumberOfTickets = createPaymentDTO.NumberOfTickets,
             PaymentStatus = "Completed", // Assuming the payment is successful for this example
             UserId = userId, // Set the user ID from the token
-            PaymentId = payment.Id, // Set the foreign key relationship
-            Payment = payment,
         };
         await _bookingRepository.AddAsync(booking); // Save the booking to the database
 
-        payment.BookingId = booking.Id; // Set the foreign key relationship
-        await _paymentsRepository.UpdateAsync(payment);
+        var payment = new Payment
+        {
+            Amount = totalAmount,
+            PaymentDate = DateTime.UtcNow,
+            PaymentMethod = createPaymentDTO.PaymentMethod,
+            TransactionId = GenerateTransactionId(),
+            PaymentStatus = "Success", // Assuming the payment is successful for this example
+            BookingId = booking.Id, // Set the foreign key relationship
+        };
+        await _paymentsRepository.AddAsync(payment); // Save the payment to the database
+
+        booking.PaymentId = payment.Id; // Set the foreign key relationship
+        await _bookingRepository.UpdateAsync(booking); // Update the booking with the payment ID
 
         for (int i = 0; i < booking.NumberOfTickets; i++)
         {
@@ -81,10 +86,20 @@ public class PaymentsController : ControllerBase {
         }
 
         var paymentDTO = _mapper.Map<Payment>(createPaymentDTO);
-        return CreatedAtAction(nameof(GetPayment), new { id = paymentDTO.Id }, paymentDTO);
+        return CreatedAtAction(nameof(GetPayment), new { id = paymentDTO.Id }, new PaymentResponseDTO
+        {
+            Id = payment.Id,
+            Amount = payment.Amount,
+            PaymentDate = payment.PaymentDate,
+            PaymentMethod = payment.PaymentMethod,
+            TransactionId = payment.TransactionId,
+            PaymentStatus = payment.PaymentStatus,
+            BookingId = booking.Id // Include the booking ID in the response
+        });
     }   
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")] 
     public async Task<ActionResult<GetPaymentDTO>> GetPayment(int id)
     {
         var payment = await _paymentsRepository.GetAsync(id);

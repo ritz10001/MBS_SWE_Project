@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
@@ -29,6 +30,7 @@ public class ShowsController : ControllerBase {
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<GetShowDTO>> GetShow(int id) {
         var record = await _showsRepostory.GetShowWithDetails(id);
         if (record == null) {
@@ -38,12 +40,14 @@ public class ShowsController : ControllerBase {
         return Ok(show);
     }
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Show>> PostShow(CreateShowDTO createShowDTO) {
         var show = _mapper.Map<Show>(createShowDTO);
         await _showsRepostory.AddAsync(show);
         return CreatedAtAction("GetShow", new { id = show.Id }, show);
     }
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SoftDeleteShow(int id) {
         var show = await _showsRepostory.GetAsync(id);
         if (show == null) {
@@ -55,6 +59,7 @@ public class ShowsController : ControllerBase {
     }   
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateShow(int id, UpdateShowDTO updateShowDTO) {
         if (id != updateShowDTO.Id) {
             return BadRequest();

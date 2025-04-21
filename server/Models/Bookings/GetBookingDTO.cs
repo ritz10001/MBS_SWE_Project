@@ -10,6 +10,7 @@ public class GetBookingDTO
     public DateTime BookingDate { get; set; }
     public decimal TotalAmount { get; set; }
     public DateTime ShowTime { get; set; }
+    public string TheaterName { get; set; }
     public string MovieTitle { get; set; }
     public List<GetTicketsDTO> Tickets { get; set; } = new List<GetTicketsDTO>();   
 }

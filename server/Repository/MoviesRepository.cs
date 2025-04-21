@@ -17,6 +17,10 @@ public class MoviesRepository : GenericRepository<Movie>, IMoviesRepository
     {
         return await _context.Movies
         .Where(m => m.Id == id)
+        .Include(m => m.Reviews)                 // <-- load Reviews
+            .ThenInclude(r => r.User)            // <-- load User inside each Review
+        .Include(m => m.Shows)                   // <-- load Shows
+            .ThenInclude(s => s.Theatre)  
         .Select(m => new Movie
         {
             Id = m.Id,
@@ -29,7 +33,27 @@ public class MoviesRepository : GenericRepository<Movie>, IMoviesRepository
             Genre = m.Genre,
             ReleaseDate = m.ReleaseDate,
             ImageUrl = m.ImageUrl,
-            Shows = m.Shows.Where(s => s.isActive).ToList(),
+            Shows = m.Shows.Select(s => new Show
+            {
+                Id = s.Id,
+                ShowTime = s.ShowTime,
+                TicketPrice = s.TicketPrice,
+                isActive = s.isActive,
+                TheatreId = s.TheatreId,
+                Theatre = new Theatre
+                {
+                    Id = s.Theatre.Id,
+                    Name = s.Theatre.Name,
+                    Location = s.Theatre.Location
+                },
+                Movie = new Movie
+                {
+                    Title = s.Movie.Title,
+                    Description = s.Movie.Description,
+                    Duration = s.Movie.Duration,
+                    ImageUrl = s.Movie.ImageUrl
+                }
+            }).ToList(),
             Reviews = m.Reviews.Select(r => new Review
             {
                 Id = r.Id,
@@ -41,8 +65,7 @@ public class MoviesRepository : GenericRepository<Movie>, IMoviesRepository
                 User = new User
                 {
                     Id = r.User.Id,
-                    UserName = r.User.UserName,
-                    Email = r.User.Email
+                    FirstName = r.User.FirstName
                 }
             }).ToList()
         })

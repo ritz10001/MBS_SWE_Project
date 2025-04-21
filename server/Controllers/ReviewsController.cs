@@ -23,16 +23,16 @@ public class ReviewsController : ControllerBase {
         _mapper = mapper;
     }
     [HttpPost("add-review")]
-    // [Authorize(Roles = "User, Admininistrator")]
+    [Authorize(Roles = "User, Admininistrator")]
     public async Task<IActionResult> AddReview(CreateReviewDTO createReviewDTO) {
         var review = _mapper.Map<Review>(createReviewDTO);
-        // review.UserId = GetUserId(); // Get the current user's ID from the JWT token
+        review.UserId = GetUserId(); // Get the current user's ID from the JWT token
         await _reviewsRepository.AddAsync(review);
         return Ok();
     }   
 
     [HttpPut("{id}")]
-    // [Authorize(Roles = "User, Admininistrator")]
+    [Authorize(Roles = "User, Admininistrator")]
     public async Task<IActionResult> UpdateReview(int id, UpdateReviewDTO updateReviewDTO) {
 
         var review = await _reviewsRepository.GetAsync(id);
@@ -40,12 +40,12 @@ public class ReviewsController : ControllerBase {
             return NotFound();
         }
 
-        // var currentUserId = GetUserId();
-        // var isAdmin = User.IsInRole("Admininistrator");
+        var currentUserId = GetUserId();
+        var isAdmin = User.IsInRole("Admininistrator");
 
-        // if(review.UserId != currentUserId && !isAdmin) {
-        //     return Forbid(); // User is not authorized to update this review, 403 error code
-        // }
+        if(review.UserId != currentUserId && !isAdmin) {
+            return Forbid(); // User is not authorized to update this review, 403 error code
+        }
 
         _mapper.Map(updateReviewDTO, review);
         review.ReviewDate = DateTime.UtcNow;
@@ -64,19 +64,19 @@ public class ReviewsController : ControllerBase {
     }
 
     [HttpDelete("{id}")]
-    // [Authorize(Roles = "User, Admininistrator")]
+    [Authorize(Roles = "User, Admininistrator")]
     public async Task<IActionResult> DeleteReview(int id) {
         var review = await _reviewsRepository.GetAsync(id);
         if (review == null) {
             return NotFound();
         }
 
-        // var currentUserId = GetUserId();
-        // var isAdmin = User.IsInRole("Admininistrator");
+        var currentUserId = GetUserId();
+        var isAdmin = User.IsInRole("Admininistrator");
 
-        // if(review.UserId != currentUserId && !isAdmin) {
-        //     return Forbid(); // User is not authorized to delete this review, 403 error code
-        // }
+        if(review.UserId != currentUserId && !isAdmin) {
+            return Forbid(); // User is not authorized to delete this review, 403 error code
+        }
 
         await _reviewsRepository.DeleteAsync(id);
         return NoContent();
