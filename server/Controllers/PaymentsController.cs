@@ -28,7 +28,7 @@ public class PaymentsController : ControllerBase {
     }
 
     [HttpPost("create")]
-    [Authorize(Roles = "User, Admin")] // Only Users and Admins can access this endpoint
+    [Authorize(Roles = "User, Administrator")] // Only Users and Admins can access this endpoint
     public async Task<ActionResult<PaymentResponseDTO>> CreatePayment(CreatePaymentDTO createPaymentDTO)
     {
         if (createPaymentDTO == null)
@@ -99,7 +99,7 @@ public class PaymentsController : ControllerBase {
     }   
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = "Administrator")] 
     public async Task<ActionResult<GetPaymentDTO>> GetPayment(int id)
     {
         var payment = await _paymentsRepository.GetAsync(id);

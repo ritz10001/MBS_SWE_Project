@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
@@ -18,12 +19,14 @@ namespace server.Controllers;
 public class ReviewsController : ControllerBase {
     private readonly IReviewsRepository _reviewsRepository; 
     private readonly IMapper _mapper;
-    public ReviewsController(IReviewsRepository reviewsRepository, IMapper mapper) {
+    private readonly UserManager<User> _userManager;
+    public ReviewsController(IReviewsRepository reviewsRepository, IMapper mapper, UserManager<User> userManager) {
         _reviewsRepository = reviewsRepository;
         _mapper = mapper;
+        _userManager = userManager;
     }
     [HttpPost("add-review")]
-    [Authorize(Roles = "User, Admininistrator")]
+    [Authorize(Roles = "User, Administrator")]
     public async Task<IActionResult> AddReview(CreateReviewDTO createReviewDTO) {
         var review = _mapper.Map<Review>(createReviewDTO);
         review.UserId = GetUserId(); // Get the current user's ID from the JWT token
@@ -32,7 +35,7 @@ public class ReviewsController : ControllerBase {
     }   
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "User, Admininistrator")]
+    [Authorize(Roles = "User, Administrator")]
     public async Task<IActionResult> UpdateReview(int id, UpdateReviewDTO updateReviewDTO) {
 
         var review = await _reviewsRepository.GetAsync(id);
@@ -41,7 +44,7 @@ public class ReviewsController : ControllerBase {
         }
 
         var currentUserId = GetUserId();
-        var isAdmin = User.IsInRole("Admininistrator");
+        var isAdmin = GetUserRoles().Contains("Administrator");
 
         if(review.UserId != currentUserId && !isAdmin) {
             return Forbid(); // User is not authorized to update this review, 403 error code
@@ -64,7 +67,7 @@ public class ReviewsController : ControllerBase {
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "User, Admininistrator")]
+    [Authorize(Roles = "User, Administrator")]
     public async Task<IActionResult> DeleteReview(int id) {
         var review = await _reviewsRepository.GetAsync(id);
         if (review == null) {
@@ -72,7 +75,11 @@ public class ReviewsController : ControllerBase {
         }
 
         var currentUserId = GetUserId();
-        var isAdmin = User.IsInRole("Admininistrator");
+        var isAdmin = GetUserRoles().Contains("Administrator");
+        Console.WriteLine($"Is user an admin?: {isAdmin}");
+        foreach(var role in GetUserRoles()) {
+            Console.WriteLine(role);
+        }
 
         if(review.UserId != currentUserId && !isAdmin) {
             return Forbid(); // User is not authorized to delete this review, 403 error code
@@ -89,5 +96,10 @@ public class ReviewsController : ControllerBase {
 
     private string GetUserId() {
         return User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+    }
+
+    private List<string> GetUserRoles() {
+        var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+        return roles;
     }
 }
