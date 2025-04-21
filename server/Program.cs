@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using server.Configurations;
 using server.Data;
 using server.Interface;
 using server.Repository;
+using Server.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,9 @@ builder.Services.AddScoped<IShowsRepostory, ShowsRepository>(); // Register Show
 builder.Services.AddScoped<ITheatresRepository, TheatresRepository>(); // Register Theatres Repository
 builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>(); // Register Reviews Repository
 builder.Services.AddScoped<IAuthService, AuthService>(); // Register Auth Service
+builder.Services.AddScoped<IBookingsRepository, BookingsRepository>(); // Register Bookings Repository
+builder.Services.AddScoped<ITicketsRepository, TicketsRepository>(); // Register Tickets Repository
+builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>(); // Register Payments Repository
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -54,6 +59,31 @@ builder.Services.AddAuthentication(options => {
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])) 
     };
 });
+
+builder.Services.AddSwaggerGen(options => {
+    options.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, 
+    securityScheme: new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Enter the bearer Authorization : `Bearer Generated-JWT-Token`",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
+            }, new string[] { }
+        }
+    });
+});  
 
 var app = builder.Build();
 

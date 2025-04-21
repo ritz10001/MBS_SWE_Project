@@ -20,15 +20,19 @@ public class BookingsRepository : GenericRepository<Booking>, IBookingsRepositor
             .Where(b => b.UserId == userId)
             .Include(b => b.Show)
             .ThenInclude(s => s.Movie)
+            .Include(b => b.Show)
+            .ThenInclude(s => s.Theatre)
             .Include(b => b.Tickets)
             .ToListAsync();
     }
 
-    public async Task<Booking> GetBookingById(int id)
+    public async Task<Booking?> GetBookingById(int id)
     {
         return await _context.Booking
             .Include(b => b.Show)
             .ThenInclude(s => s.Movie)
+            .Include(b => b.Show)
+            .ThenInclude(s => s.Theatre)
             .Include(b => b.Tickets)
             .FirstOrDefaultAsync(b => b.Id == id);
     }

@@ -3,11 +3,13 @@ using server.Data;
 using server.Models;
 using server.Models.Bookings;
 using server.Models.Movies;
+using server.Models.Payments;
 using server.Models.Reviews;
 using server.Models.Shows;
 using server.Models.Theatres;
 using server.Models.Tickets;
 using server.Models.Users;
+using Server.Models.Payments;
 
 namespace server.Configurations;
 
@@ -34,6 +36,10 @@ public class MapperConfig : Profile {
         .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.Show.Movie.Title))
         .ForMember(dest => dest.ShowTime, opt => opt.MapFrom(src => src.Show.ShowTime));
         CreateMap<Booking, CreateBookingDTO>().ReverseMap();
+        CreateMap<Booking, GetBookingDTO>().ReverseMap();
+        CreateMap<Booking, GetBookingsDTO>().ReverseMap();
         CreateMap<Ticket, GetTicketsDTO>().ReverseMap();
+        CreateMap<Payment, CreatePaymentDTO>().ReverseMap();
+        CreateMap<Payment, GetPaymentDTO>().ReverseMap();
     }
 }
