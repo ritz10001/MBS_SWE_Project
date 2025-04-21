@@ -25,7 +25,7 @@ public class BookingController : ControllerBase {
     }
 
     [HttpGet("getAllBookings")]
-    [Authorize(Roles = "Admin")] // Only Admins can access this endpoint
+    [Authorize(Roles = "Administrator")] // Only Admins can access this endpoint
     public async Task<ActionResult<IEnumerable<GetBookingsDTO>>> GetBookings() {
         var records = await _bookingRepository.GetAllAsync();
         if (records == null) {
@@ -36,7 +36,7 @@ public class BookingController : ControllerBase {
     }
 
     [HttpGet("getMyBookings")]
-    [Authorize(Roles = "User, Admin")] // Only Users and Admins can access this endpoint
+    [Authorize(Roles = "User, Administrator")] // Only Users and Admins can access this endpoint
     public async Task<ActionResult<IEnumerable<GetBookingsDTO>>> GetMyBookings() {
         var userId = GetUserId();
         if(string.IsNullOrEmpty(userId)) {
@@ -54,7 +54,7 @@ public class BookingController : ControllerBase {
         if (records == null) {
             return NotFound();
         }
-        
+
         var bookings = records.Select(b => new GetBookingsDTO {
             Id = b.Id,
             BookingDate = b.BookingDate,
@@ -69,7 +69,7 @@ public class BookingController : ControllerBase {
     }
 
     [HttpGet("getBooking/{id}")]
-    [Authorize(Roles = "User, Admin")] // Only Users and Admins can access this endpoint
+    [Authorize(Roles = "User, Administrator")] // Only Users and Admins can access this endpoint
     public async Task<ActionResult<GetBookingDTO>> GetBooking(int id) {
         var record = await _bookingRepository.GetBookingById(id);
         if (record == null) {
@@ -84,19 +84,6 @@ public class BookingController : ControllerBase {
         return Ok(booking);
     }  
 
-    // [HttpPost("createBooking")]
-    // public async Task<ActionResult<CreateBookingDTO>> CreateBooking(CreateBookingDTO createBookingDTO) {
-    //     var userId = GetUserId();
-    //     if(string.IsNullOrEmpty(userId)) {
-    //         return BadRequest("You must be logged in to create a Booking.");
-    //     }
-    //     var booking = _mapper.Map<Booking>(createBookingDTO);
-    //     booking.UserId = userId; 
-    //     booking.PaymentStatus = "Pending"; // Assuming the payment is successful for this example
-    //     await _bookingRepository.AddAsync(booking);
-
-    //     return CreatedAtAction(nameof(GetBookings), new { id = booking.Id }, booking);
-    // }
     private string? GetUserId() {
         return User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
     }
