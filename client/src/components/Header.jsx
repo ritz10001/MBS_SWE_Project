@@ -7,7 +7,7 @@ const Header = () => {
   /* todo: make auth and search functional */
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isAuthenticated, userId, logout } = useAuth()
+  const { isAuthenticated, userId, userDetails, logout } = useAuth()
 
   const genres = ['Trending', 'Action', 'Horror', 'Thriller', 'Drama', 'Comedy', 'Romance', 'Sci-Fi']
 
@@ -34,7 +34,7 @@ const Header = () => {
           <div className="flex items-center justify-end gap-8 text-white font-medium">
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
-                <span>User: {userId}</span>
+                <span>{userDetails?.firstName}</span>
                 <button onClick={logout} className="hover:text-gray-200">
                   Logout
                 </button>
@@ -116,7 +116,12 @@ const Header = () => {
                   <div className="flex flex-col gap-2">
                     {isAuthenticated ? (
                       <>
-                        <span className="text-gray-800">User: {userId}</span>
+                        <span className="text-gray-800 font-bold">{userDetails?.firstName} {userDetails?.lastName}</span>
+                        <span className="text-gray-600 hover:text-gray-800 text-left">
+                          <NavLink to="/profile">
+                            Profile
+                          </NavLink>
+                        </span>
                         <button 
                           onClick={() => {
                             logout();
