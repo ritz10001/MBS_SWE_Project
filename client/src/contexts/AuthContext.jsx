@@ -6,6 +6,28 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userId, setUserId] = useState(null);
     const [token, setToken] = useState(null);
+    const [userDetails, setUserDetails] = useState(null);
+
+    const fetchUserDetails = async () => {
+        try {
+            const response = await fetch('http://localhost:5168/api/user/user-details', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserDetails(data);
+            } else {
+                console.error('Failed to fetch user details');
+                logout();
+            }
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            logout();
+        }
+    };
 
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
@@ -17,6 +39,12 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
         }
     }, []);
+
+    useEffect(() => {
+        if (token) {
+            fetchUserDetails();
+        }
+    }, [token]);
 
     const login = (newToken, newUserId) => {
         localStorage.setItem('token', newToken);
@@ -31,11 +59,20 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('userId');
         setToken(null);
         setUserId(null);
+        setUserDetails(null);
         setIsAuthenticated(false);
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, userId, token, login, logout }}>
+        <AuthContext.Provider value={{ 
+            isAuthenticated, 
+            userId, 
+            token, 
+            userDetails,
+            login, 
+            logout,
+            fetchUserDetails
+        }}>
             {children}
         </AuthContext.Provider>
     );
