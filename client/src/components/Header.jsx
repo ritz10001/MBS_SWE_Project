@@ -1,11 +1,13 @@
 import { FaSearch, FaBars, FaTimes } from "react-icons/fa"
 import { useState } from "react"
 import { NavLink } from "react-router"
+import { useAuth } from '../contexts/AuthContext'
 
 const Header = () => {
   /* todo: make auth and search functional */
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isAuthenticated, userId, logout } = useAuth()
 
   const genres = ['Trending', 'Action', 'Horror', 'Thriller', 'Drama', 'Comedy', 'Romance', 'Sci-Fi']
 
@@ -13,7 +15,7 @@ const Header = () => {
     <div className="w-full bg-[#c13232] py-3 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4">
         {/* desktop header */}
-        <div className="hidden md:grid grid-cols-3 gap-4 justify-between items-center">
+        <div className="hidden md:grid grid-cols-[1fr_max-content_1fr] gap-4 justify-between items-center">
           <h1 className="text-3xl text-white font-bold">
             <NavLink to="/">
               MBS
@@ -30,8 +32,19 @@ const Header = () => {
             </button>
           </div>
           <div className="flex items-center justify-end gap-8 text-white font-medium">
-            <a href="/">Log In</a>
-            <a href="/">Sign Up</a>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <span>User: {userId}</span>
+                <button onClick={logout} className="hover:text-gray-200">
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <>
+                <NavLink to="/login">Log In</NavLink>
+                <NavLink to="/signup">Sign Up</NavLink>
+              </>
+            )}
           </div>
         </div>
 
@@ -101,20 +114,37 @@ const Header = () => {
                 </div>
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex flex-col gap-2">
-                    <a 
-                      href="/" 
-                      className="text-gray-600 hover:text-gray-800"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Log In
-                    </a>
-                    <a 
-                      href="/" 
-                      className="text-gray-600 hover:text-gray-800"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Sign Up
-                    </a>
+                    {isAuthenticated ? (
+                      <>
+                        <span className="text-gray-800">User: {userId}</span>
+                        <button 
+                          onClick={() => {
+                            logout();
+                            setIsMenuOpen(false);
+                          }}
+                          className="text-gray-600 hover:text-gray-800 text-left"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <NavLink 
+                          to="/login" 
+                          className="text-gray-600 hover:text-gray-800"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Log In
+                        </NavLink>
+                        <NavLink 
+                          to="/signup" 
+                          className="text-gray-600 hover:text-gray-800"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Sign Up
+                        </NavLink>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
