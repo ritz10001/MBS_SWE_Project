@@ -111,7 +111,7 @@ public class PaymentsController : ControllerBase {
         return Ok(paymentDTO);
     }
 
-    private string GetUserId()
+    private string? GetUserId()
     {
         return User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;   
     }

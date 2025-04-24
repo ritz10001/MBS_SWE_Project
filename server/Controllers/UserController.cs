@@ -19,7 +19,7 @@ public class UserController : ControllerBase {
     
     [HttpPut("update-profile")]
     public async Task<IActionResult> UpdateProfile(UpdateUserDTO updateUserDTO) {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
         if (userId == null) {
             return Unauthorized("Invalid token or user not logged in.");
         }
@@ -57,5 +57,28 @@ public class UserController : ControllerBase {
         if (!updateResult.Succeeded) return BadRequest("Failed to update user profile.");
 
         return Ok("Profile updated successfully.");
+    }
+
+    [HttpGet("user-details")]
+    public async Task<ActionResult<GetUserDetailsDTO>> GetUserDetails() {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+        if (userId == null) {
+            return Unauthorized("Invalid token or user not logged in.");
+        }
+        Console.WriteLine(userId);
+        var user = await _userManager.FindByIdAsync(userId);
+        if(user == null) {
+            return NotFound("User not found.");
+        }
+
+        var userDetails = new GetUserDetailsDTO {
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            PhoneNumber = user.PhoneNumber,
+            Address = user.Address,
+            Email = user.Email
+        };
+
+        return Ok(userDetails);
     }
 }   

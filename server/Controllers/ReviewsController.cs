@@ -94,7 +94,7 @@ public class ReviewsController : ControllerBase {
         return review != null;
     }   
 
-    private string GetUserId() {
+    private string? GetUserId() {
         return User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
     }
 
