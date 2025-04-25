@@ -37,6 +37,8 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader());
 });
 
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 builder.Services.AddAutoMapper(typeof(MapperConfig)); // Register AutoMapper
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); // Register Generic Repository
 builder.Services.AddScoped<IMoviesRepository, MoviesRepository>(); // Register Movies Repository
@@ -47,6 +49,7 @@ builder.Services.AddScoped<IAuthService, AuthService>(); // Register Auth Servic
 builder.Services.AddScoped<IBookingsRepository, BookingsRepository>(); // Register Bookings Repository
 builder.Services.AddScoped<ITicketsRepository, TicketsRepository>(); // Register Tickets Repository
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>(); // Register Payments Repository
+builder.Services.AddSingleton<TMDbService>(); // Register TMDbService
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -89,7 +92,15 @@ builder.Services.AddSwaggerGen(options => {
     });
 });  
 
+
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider.GetRequiredService<TMDbService>();
+    await service.DiscoverMoviesAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
