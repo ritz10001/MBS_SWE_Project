@@ -4,6 +4,7 @@ import MoviePage from './pages/MoviePage'
 import CheckoutPage from './pages/CheckoutPage';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage';
 import { AuthProvider } from './contexts/AuthContext';
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/signup" element={<SignupPage/>}/>
         <Route path="/checkout" element={<CheckoutPage/>}/>
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
     )
   );
