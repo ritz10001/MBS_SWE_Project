@@ -1,12 +1,14 @@
+import { jwtDecode } from 'jwt-decode';
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [userId, setUserId] = useState(null);
   const [token, setToken] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
+  const [userRoles, setUserRoles] = useState(null);
 
   const fetchUserDetails = async () => {
     try {
@@ -19,6 +21,12 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         setUserDetails(data);
+
+        const tokenPayload = jwtDecode(token);
+        const roles = tokenPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']?.split(',') ?? [];
+        setUserRoles(roles);
+
+        setIsAuthenticated(true);
       } else {
         console.error('Failed to fetch user details');
         logout();
@@ -36,7 +44,8 @@ export const AuthProvider = ({ children }) => {
     if (storedToken && storedUserId) {
       setToken(storedToken);
       setUserId(storedUserId);
-      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
     }
   }, []);
 
@@ -51,7 +60,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('userId', newUserId);
     setToken(newToken);
     setUserId(newUserId);
-    setIsAuthenticated(true);
   };
 
   const logout = () => {
@@ -60,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUserId(null);
     setUserDetails(null);
+    setUserRoles(null);
     setIsAuthenticated(false);
   };
 
@@ -69,9 +78,9 @@ export const AuthProvider = ({ children }) => {
       userId,
       token,
       userDetails,
+      userRoles,
       login,
-      logout,
-      fetchUserDetails
+      logout
     }}>
       {children}
     </AuthContext.Provider>

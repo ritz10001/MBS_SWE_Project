@@ -6,16 +6,29 @@ import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import { AuthProvider } from './contexts/AuthContext';
+import GuestRoutes from './layouts/GuestRoutes';
+import MemberRoutes from './layouts/MemberRoutes';
+import AdminRoutes from './layouts/AdminRoutes';
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<MainLayout />}>
         <Route index element={<MoviePage />}/>
-        <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/signup" element={<SignupPage/>}/>
-        <Route path="/checkout" element={<CheckoutPage/>}/>
-        <Route path="/profile" element={<ProfilePage />} />
+
+        <Route element={<GuestRoutes />}>
+          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/signup" element={<SignupPage/>}/>
+        </Route>
+        
+        <Route element={<MemberRoutes />}>
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/checkout" element={<CheckoutPage/>}/>
+        </Route>
+
+        <Route element={<AdminRoutes/>}>
+          <Route path="/admin" element={<div>hi</div>}/>
+        </Route>
       </Route>
     )
   );
