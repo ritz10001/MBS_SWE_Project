@@ -1,15 +1,11 @@
 import React, { useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaPhone } from "react-icons/fa";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
+import { useAuth } from "../contexts/AuthContext";
 
 const UserPage = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [userDetails, setUserDetails] = useState({
-    userName: "John Doe",
-    address: "42 Pebble Hollow Court",
-    email: "johndoe@gmail.com",
-    phone: "(832) 803 5795",
-  });
+  const { userDetails, userRoles } = useAuth();
   
   const [movieHistory, setMovieHistory] = useState([
     {
@@ -46,13 +42,13 @@ const UserPage = () => {
           Profile
         </h1>
         <div className="relative rounded-xl bg-[#ececec] shadow-xl px-4 py-4 grid grid-cols-[17%_1fr] gap-4 justify-between">
-          {" "}
           <div className="flex flex-col justify-between min-w-[450px]">
             <div>
               <div>
                 <div className="font-bold text-black text-xl">
-                  {userDetails.userName}
+                  {userDetails.firstName} {userDetails.lastName}
                 </div>
+                <div className="text-gray-500">{userRoles.join(', ')}</div>
               </div>
               <div className="text-black mt-4">
                 <div className="flex items-center gap-2">
@@ -71,7 +67,7 @@ const UserPage = () => {
                   <div className="flex items-center justify-center w-10">
                     <FaPhone className="text-gray-500" />
                   </div>
-                  <span>{userDetails.phone}</span>
+                  <span>{userDetails.phoneNumber}</span>
                 </div>
               </div>
             </div>
