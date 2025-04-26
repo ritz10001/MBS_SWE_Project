@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using server.Data;
@@ -18,6 +19,7 @@ public class UserController : ControllerBase {
     }
     
     [HttpPut("update-profile")]
+    [Authorize(Roles = "User, Administrator")]
     public async Task<IActionResult> UpdateProfile(UpdateUserDTO updateUserDTO) {
         var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
         if (userId == null) {
@@ -60,6 +62,7 @@ public class UserController : ControllerBase {
     }
 
     [HttpGet("user-details")]
+    [Authorize(Roles = "User, Administrator")]
     public async Task<ActionResult<GetUserDetailsDTO>> GetUserDetails() {
         var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
         if (userId == null) {

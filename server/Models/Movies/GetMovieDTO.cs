@@ -9,6 +9,6 @@ public class GetMovieDTO : BaseMovieDTO {
     public string Description { get; set; }  
     public string Cast { get; set; }
     public string ImageUrl { get; set; }
-    public List<GetShowDTO> Shows { get; set; } // List of shows for this movie
+    public List<GetShowsDTO> Shows { get; set; } // List of shows for this movie
     public List<GetReviewDTO> Reviews { get; set; }
 }
