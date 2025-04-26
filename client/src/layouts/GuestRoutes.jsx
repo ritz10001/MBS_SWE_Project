@@ -7,7 +7,7 @@ const GuestRoutes = () => {
     if (isAuthenticated == null) return;
 
     return (
-        (isAuthenticated == false) ? <Navigate to="/profile" replace={true} /> : <Outlet />
+        (isAuthenticated == false) ? <Outlet /> :<Navigate to="/profile" replace={true} />
     )
 }
 
