@@ -24,9 +24,21 @@ public class ShowsController : ControllerBase {
    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<GetShowsDTO>>> GetShows() {
-        var records = await _showsRepostory.GetAllAsync();
-        var shows = _mapper.Map<List<GetShowsDTO>>(records);
-        return Ok(shows);
+        
+        var shows = await _showsRepostory.GetAllShows();
+        // var shows = _mapper.Map<List<GetShowsDTO>>(records);
+        var showDTOs = shows.Select(show => new GetShowsDTO
+        {
+            Id = show.Id,
+            ShowTime = show.ShowTime,
+            TicketPrice = show.TicketPrice,
+            isActive = show.isActive,
+            TheatreId = show.TheatreId,
+            MovieId = show.MovieId,
+            TheatreName = show.Theatre?.Name,  // safe access
+            Location = show.Theatre?.Location  // safe access
+        }).ToList();
+        return Ok(showDTOs);
     }
 
     [HttpGet("{id}")]

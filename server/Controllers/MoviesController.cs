@@ -7,6 +7,7 @@ using server.Interface;
 using server.Models;
 using server.Models.Movies;
 using server.Models.Shows;
+using server.Repository;
 
 namespace server.Controllers;
 
@@ -15,9 +16,11 @@ namespace server.Controllers;
 public class MoviesController : ControllerBase {
     private readonly IMapper _mapper;
     private readonly IMoviesRepository _moviesRepository;
-    public MoviesController(IMapper mapper, IMoviesRepository moviesRepository) {
+    private readonly IShowsRepostory _showsRepostory;
+    public MoviesController(IMapper mapper, IMoviesRepository moviesRepository, IShowsRepostory showsRepository) {
         _mapper = mapper;
         _moviesRepository = moviesRepository;
+        _showsRepostory = showsRepository;
     }
 
     [HttpGet]
@@ -34,8 +37,31 @@ public class MoviesController : ControllerBase {
             return NotFound();
         }
         var movie = _mapper.Map<GetMovieDTO>(record);
+        var shows = await _showsRepostory.GetAllShowsForMovies(id);
+        movie.Shows = shows.Select(s => new GetShowsDTO {
+            Id = s.Id,
+            ShowTime = s.ShowTime,
+            TicketPrice = s.TicketPrice,
+            isActive = s.isActive,
+            TheatreId = s.TheatreId,
+            MovieId = s.MovieId,
+            TheatreName = s.Theatre.Name,
+            Location = s.Theatre.Location
+        }).ToList();
+        
         return Ok(movie);
     }
+
+    // [HttpPost("import-one-tmdb")]
+    // [Authorize(Roles = "Administrator")]
+    // public async Task<IActionResult> ImportOneFromTMDb()
+    // {
+    //     var movies = await _tmdbService.DiscoverMoviesAsync();
+    //     if (movies.Count == 0) return BadRequest("No movie found or failed to fetch.");
+        
+    //     return Ok(movies[0]); // Return inserted movie just for confirmation
+    // }
+
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Administrator")]
