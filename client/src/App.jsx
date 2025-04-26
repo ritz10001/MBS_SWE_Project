@@ -5,6 +5,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
 import { AuthProvider } from './contexts/AuthContext';
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/signup" element={<SignupPage/>}/>
         <Route path="/checkout" element={<CheckoutPage/>}/>
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
     )
   );

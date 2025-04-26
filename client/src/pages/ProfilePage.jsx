@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaPhone } from "react-icons/fa";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
+import Button from "../components/Button";
 
 const UserPage = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -10,7 +11,7 @@ const UserPage = () => {
     email: "johndoe@gmail.com",
     phone: "(832) 803 5795",
   });
-  
+
   const [movieHistory, setMovieHistory] = useState([
     {
       title: "Karate Kid: Legends",
@@ -36,7 +37,6 @@ const UserPage = () => {
 
   const saveDetails = () => {
     setIsEditing(false);
-    // Optionally, you can add logic to save the updated details to a server here.
   };
 
   return (
@@ -46,7 +46,6 @@ const UserPage = () => {
           Profile
         </h1>
         <div className="relative rounded-xl bg-[#ececec] shadow-xl px-4 py-4 grid grid-cols-[17%_1fr] gap-4 justify-between">
-          {" "}
           <div className="flex flex-col justify-between min-w-[450px]">
             <div>
               <div>
@@ -75,12 +74,13 @@ const UserPage = () => {
                 </div>
               </div>
             </div>
-            <button
+            <Button
               onClick={toggleEditWindow}
-              className="absolute top-4 right-4 bg-blue-500 text-white rounded px-4 hover:bg-blue-600 transition duration-300 ease-in-out"
+              variant="primary"
+              className="absolute top-4 right-4 px-4"
             >
               Edit Profile
-            </button>
+            </Button>
           </div>
         </div>
         {isEditing && (
@@ -140,18 +140,20 @@ const UserPage = () => {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <button
+                <Button
                   onClick={toggleEditWindow}
-                  className="bg-gray-300 text-black rounded px-4 py-2"
+                  className="px-4 py-2"
+                  variant="default"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={saveDetails}
-                  className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
+                  className=" px-4 py-2"
+                  variant="primary"
                 >
                   Update Profile
-                </button>
+                </Button>
               </div>
             </div>
           </div>
