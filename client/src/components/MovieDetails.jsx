@@ -3,6 +3,7 @@ import { FaCalendarAlt, FaClock, FaStar } from "react-icons/fa"
 const MovieDetails = ({ data }) => {
   const hours = Math.floor(data.duration / 60);
   const minutes = data.duration % 60;
+  const rating = Math.round(data.rating / 2);
 
   return <>
     <div className="grid grid-cols-1 md:grid-cols-[20%_1fr] gap-6 mb-6">
@@ -20,16 +21,18 @@ const MovieDetails = ({ data }) => {
           </div>
         </div>
         <div className="mt-6">
-          <div className="mt-2 flex items-center gap-1.5"><span className="font-bold">Rating:</span> <span className="inline-flex text-lg">{['','','','',''].map((_, i) => <FaStar key={i} className="text-yellow-400"/>)}</span></div>
-          {/*<div className="mt-2"><span className="font-bold">Cast:</span> Ralph Macchio, Jackie Chan, Ben Wang, Sadie Stanley, Wyatt Oleff, Joshua Jackson, Aramis Knight,  Shaunette Renee Wilson, Ming-Na Wen, James Lassiter, Zak Penn, John G Avildsen</div>*/}
+          <div className="mt-2 flex items-center gap-1.5">
+            <span className="font-bold">Rating: </span>
+            <span className="inline-flex text-lg" title={`${data.rating}/10`}>{Array(5).fill(0).map((_, i) => <FaStar key={i} className={rating > i ? 'text-yellow-500' : 'text-gray-300'}/>)}</span>
+          </div>
+          <div className="mt-2"><span className="font-bold">Cast:</span> {data.cast}</div>
           <div className="mt-2"><span className="font-bold">Director:</span> {data.director}</div>
-          {/*<div className="mt-2"><span className="font-bold">Producers:</span> Will Smith, Karen Rosenfelt</div>*/}
         </div>
       </div>
     </div>
     <div className="mb-8">
       <p className="text-gray-700 border-l-2 pl-4 border-gray-300 py-2">
-        A young martial artist embarks on a journey to become a karate master, facing challenges and discovering the true meaning of strength and honor.
+        {data.description}
       </p>
     </div>
   </>;

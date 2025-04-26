@@ -53,7 +53,7 @@ const Header = () => {
     setIsSearchOpen(false);
   });
 
-  const genres = ['Trending', 'Action', 'Horror', 'Thriller', 'Drama', 'Comedy', 'Romance', 'Sci-Fi']
+  const genres = ['All Movies', 'Action', 'Horror', 'Thriller', 'Drama', 'Comedy', 'Romance', 'Sci-Fi']
 
   return (
     <div ref={mobileMenuRef} className="w-full bg-[#c13232] py-3 sticky top-0 z-50">
@@ -141,7 +141,7 @@ const Header = () => {
                     {genres.map((genre, index) => (
                       <NavLink 
                         key={index} 
-                        to={`/?genre=${genre.toLowerCase()}`}
+                        to={index == 0 ? '/' : `/?genre=${genre}`}
                         className="text-gray-600 hover:text-gray-800"
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -197,10 +197,10 @@ const Header = () => {
 
         {/* desktop genre list */}
         <div className="hidden md:flex justify-between items-center text-white font-bold uppercase mt-3 gap-2">
-          {genres.map((x, index) => (
-            <NavLink key={index} to={`/?genre=${x.toLowerCase()}`}>
+          {genres.map((genre, index) => (
+            <NavLink key={index} to={index == 0 ? '/' : `/?genre=${genre}`}>
               <span className="text-sm md:text-base">
-                {x}
+                {genre}
               </span>
             </NavLink>
           ))}

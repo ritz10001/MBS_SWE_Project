@@ -10,12 +10,13 @@ import GuestRoutes from './layouts/GuestRoutes';
 import MemberRoutes from './layouts/MemberRoutes';
 import AdminRoutes from './layouts/AdminRoutes';
 import NotFoundPage from './pages/NotFoundPage';
+import MovieListPage from './pages/MovieListPage';
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<MainLayout />} errorElement={<NotFoundPage/>}>
-        <Route index element={<div>movie list here</div>}/>
+        <Route index element={<MovieListPage />}/>
         <Route path="/movie/:movieId" element={<MoviePage />} />
 
         <Route element={<GuestRoutes />}>
