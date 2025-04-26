@@ -8,6 +8,8 @@ namespace server.Models.Shows
         public bool isActive { get ; set; }
         public int TheatreId { get; set; } 
         public int MovieId { get; set; } 
+        public string TheatreName { get; set;}
+        public string Location { get; set; }
         
     }
 }   

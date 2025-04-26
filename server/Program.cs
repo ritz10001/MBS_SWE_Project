@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using server.Configurations;
 using server.Data;
+using server.Data.Configurations;
 using server.Interface;
 using server.Repository;
 using Server.Repository;
@@ -49,7 +50,7 @@ builder.Services.AddScoped<IAuthService, AuthService>(); // Register Auth Servic
 builder.Services.AddScoped<IBookingsRepository, BookingsRepository>(); // Register Bookings Repository
 builder.Services.AddScoped<ITicketsRepository, TicketsRepository>(); // Register Tickets Repository
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>(); // Register Payments Repository
-builder.Services.AddSingleton<TMDbService>(); // Register TMDbService
+// builder.Services.AddScoped<TMDbService>(); // Register TMDbService
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -97,9 +98,9 @@ builder.Services.AddSwaggerGen(options => {
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
-{
-    var service = scope.ServiceProvider.GetRequiredService<TMDbService>();
-    await service.DiscoverMoviesAsync();
+{   
+    var db = scope.ServiceProvider.GetRequiredService<MBSDbContext>();
+    await SeedHelper.SeedMoviesAndShowsAsync(db);
 }
 
 // Configure the HTTP request pipeline.
