@@ -76,11 +76,9 @@ const Header = () => {
                   <span>{userDetails?.firstName} {userDetails?.lastName}</span>
                 </button>
                 <div ref={userDropdownRef} className="absolute right-0 top-full mt-2 bg-white text-black rounded-lg shadow-xl p-3 flex flex-col gap-2 z-50" style={{ display: isUserDropdownOpen ? 'flex' : 'none' }}>
-                  <NavLink to="/profile" onClick={() => setIsUserDropdownOpen(false)}>
-                    <Button variant="default" width="full" className="text-nowrap">
-                      View Profile
-                    </Button>
-                  </NavLink>
+                  <Button variant="default" width="full" className="text-nowrap" href="/profile" onClick={() => setIsUserDropdownOpen(false)}>
+                    View Profile
+                  </Button>
                   <Button variant="danger" width="full" className="text-nowrap" onClick={() => {
                     logout()
                     setIsUserDropdownOpen(false)

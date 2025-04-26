@@ -9,12 +9,14 @@ import { AuthProvider } from './contexts/AuthContext';
 import GuestRoutes from './layouts/GuestRoutes';
 import MemberRoutes from './layouts/MemberRoutes';
 import AdminRoutes from './layouts/AdminRoutes';
+import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<MoviePage />}/>
+      <Route path="/" element={<MainLayout />} errorElement={<NotFoundPage/>}>
+        <Route index element={<div>movie list here</div>}/>
+        <Route path="/movie/:movieId" element={<MoviePage />} />
 
         <Route element={<GuestRoutes />}>
           <Route path="/login" element={<LoginPage/>}/>
