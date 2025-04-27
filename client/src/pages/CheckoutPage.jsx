@@ -2,7 +2,8 @@ import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 
 const CheckoutPage = () => {
   /* todo: split into components */
-  return (
+  return <>
+    <title>Checkout Tickets | MBS</title>
     <div className="max-w-5xl mx-auto py-8 px-4">
       <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">Checkout Selected Tickets</h1>
       <div className="grid lg:grid-cols-[70%_1fr] mt-4">
@@ -49,7 +50,7 @@ const CheckoutPage = () => {
         </div>
       </div>
     </div>
-  )
+  </>
 }
 
 export default CheckoutPage;
