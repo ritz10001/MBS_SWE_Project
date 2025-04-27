@@ -1,18 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../components/Button";
 
 const AdminPage = () => {
   const [timeRange, setTimeRange] = useState("Today");
 
-  const [movies, setMovies] = useState([
-    {
-      title: "Karate Kid: Legends",
-      theater: "Lubbock, Texas",
-      startTime: "March 30, 2025 at 7:50 PM",
-      runTime: "2h 30m",
-      ticketsSold: 3,
-    },
-  ]);
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch(
+          "http://moivebookingsystem.xyz/api/booking/getAllBookings",
+          {
+            method: "GET",
+          }
+        );
+        if (!response.ok) {
+          console.log("Failed to fetch movie data");
+          return;
+        }
+        const data = await response.json();
+        setMovies(data);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      }
+    };
+    fetchMovies();
+  }, []);
 
   const [newMovie, setNewMovie] = useState({
     title: "",
@@ -23,10 +37,39 @@ const AdminPage = () => {
     cast: "",
   });
 
-  const handleNewMovie = () => {};
+  const handleNewMovie = async () => {
+    try {
+      fetch("http://moivebookingsystem.xyz/api/movies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newMovie),
+      });
 
-  const handleTimeRangeChange = (e) => {
-    setTimeRange(e.target.value);
+      if (!response.ok) {
+        throw new Error("Failed to add movie");
+      }
+
+      const data = await response.json();
+      console.log("Movie added successfully:", data);
+    } catch (error) {
+      console.error("Error posting movie:", error);
+    }
+  };
+
+  const handleTimeRangeChange = async (e) => {
+    await setTimeRange(e.target.value);
+    try {
+      const response = await fetch(`http://moivebookingsystem.xyz/api/movies`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch movie data");
+      }
+      const data = await response.json();
+      setMovies(data);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
   };
 
   return (

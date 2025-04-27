@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import Barcode from "react-barcode";
 import Button from "../components/Button";
