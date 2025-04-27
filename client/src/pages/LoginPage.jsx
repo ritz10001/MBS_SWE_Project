@@ -49,7 +49,8 @@ const LoginPage = () => {
     setIsRegistering(false);
   };
 
-  return (
+  return <>
+    <title>Log In | MBS</title>
     <div className="flex flex-col items-center justify-center px-6">
       <div className="max-w-lg w-full p-6 bg-[#ffe6e6] rounded-xl shadow-md my-32">
         <h1 className="text-xl md:text-2xl font-bold text-black mb-1 text-center">Log In</h1>
@@ -93,7 +94,7 @@ const LoginPage = () => {
         </form>
       </div>
     </div>
-  );
+  </>;
 };
 
 export default LoginPage;
