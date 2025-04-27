@@ -68,14 +68,14 @@ const Header = () => {
           <SearchBar/>
           <div className="flex items-center justify-end gap-8 text-white font-medium">
             {isAuthenticated ? (
-              <div className="relative">
+              <div ref={userDropdownRef} className="relative">
                 <button onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)} className="flex items-center cursor-pointer">
                   <div className="p-2 mr-2 rounded-full bg-white/20 text-white">
                     <FaUser/>
                   </div>
                   <span>{userDetails?.firstName} {userDetails?.lastName}</span>
                 </button>
-                <div ref={userDropdownRef} className="absolute right-0 top-full mt-2 bg-white text-black rounded-lg shadow-xl p-3 flex flex-col gap-2 z-50" style={{ display: isUserDropdownOpen ? 'flex' : 'none' }}>
+                <div className="absolute right-0 top-full mt-2 bg-white text-black rounded-lg shadow-xl p-3 flex flex-col gap-2 z-50" style={{ display: isUserDropdownOpen ? 'flex' : 'none' }}>
                   <Button variant="default" width="full" className="text-nowrap" href="/profile" onClick={() => setIsUserDropdownOpen(false)}>
                     View Profile
                   </Button>

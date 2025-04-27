@@ -1,5 +1,4 @@
 import MovieDetails from '../components/MovieDetails'
-import Showtimes from '../components/Showtimes'
 import Reviews from '../components/Reviews'
 import { useNavigate, useParams } from 'react-router'
 import { useEffect, useState } from 'react'
@@ -32,8 +31,7 @@ const MoviePage = () => {
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
       <MovieDetails data={movieData} />
-      <Showtimes movieId={movieId} />
-      <Reviews movieId={movieId} />
+      <Reviews data={movieData} />
     </div>
   )
 }

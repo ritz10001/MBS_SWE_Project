@@ -1,6 +1,3 @@
-import MovieDetails from '../components/MovieDetails'
-import Showtimes from '../components/Showtimes'
-import Reviews from '../components/Reviews'
 import { NavLink, useLocation, useNavigate, useParams } from 'react-router'
 import { useEffect, useState } from 'react'
 import LoadingCircle from '../components/LoadingCircle'
