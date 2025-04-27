@@ -28,12 +28,13 @@ const MoviePage = () => {
 
   if (!movieData) return <div className="flex justify-center py-40"><LoadingCircle className="w-8 h-8"/></div>;
 
-  return (
+  return <>
+    <title>{`${movieData.title} | MBS`}</title>
     <div className="max-w-5xl mx-auto py-8 px-4">
       <MovieDetails data={movieData} />
       <Reviews data={movieData} />
     </div>
-  )
+  </>
 }
 
 export default MoviePage 

@@ -36,7 +36,8 @@ const MovieListPage = () => {
     return matchesSearch && matchesGenre;
   });
 
-  return (
+  return <>
+    <title>Browse Movies | MBS</title>
     <div className="max-w-5xl mx-auto py-8 px-4">
       <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">{searchTerm ? `Search Results for '${searchTerm}'` : `Browse ${genreFilter ?? 'All'} Movies`}</h1>
       <div>Showing {filteredMovies.length} result{filteredMovies.length == 1 ? '' : 's'}</div>
@@ -59,7 +60,7 @@ const MovieListPage = () => {
         ))}
       </div>
     </div>
-  )
+  </>
 }
 
 export default MovieListPage 

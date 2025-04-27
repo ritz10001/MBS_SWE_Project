@@ -52,7 +52,8 @@ const SignupPage = () => {
 
   const password = watch('Password');
 
-  return (
+  return <>
+    <title>Sign Up | MBS</title>
     <div className="flex flex-col items-center justify-center px-6">
       <div className="max-w-lg w-full p-6 bg-[#ffe6e6] rounded-xl shadow-md my-32">
         <h1 className="text-xl md:text-2xl font-bold text-black mb-1 text-center">Sign Up</h1>
@@ -150,7 +151,7 @@ const SignupPage = () => {
         </form>
       </div>
     </div>
-  );
+  </>
 };
 
 export default SignupPage;
