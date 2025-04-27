@@ -14,6 +14,17 @@ const AdminPage = () => {
     },
   ]);
 
+  const [newMovie, setNewMovie] = useState({
+    title: "",
+    date: "",
+    description: "",
+    director: "",
+    producer: "",
+    cast: "",
+  });
+
+  const handleNewMovie = () => {};
+
   const handleTimeRangeChange = (e) => {
     setTimeRange(e.target.value);
   };
@@ -123,6 +134,9 @@ const AdminPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               placeholder="Movie title"
+              onChange={(e) =>
+                setNewMovie({ ...newMovie, title: e.target.value })
+              }
               className="border border-gray-300 rounded px-4 py-2 w-full"
             />
             <input
@@ -132,23 +146,42 @@ const AdminPage = () => {
           </div>
           <textarea
             placeholder="Movie description"
+            onChange={(e) =>
+              setNewMovie({ ...newMovie, description: e.target.value })
+            }
             className="border border-gray-300 rounded px-4 py-2 w-full h-32"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               placeholder="Movie director"
+              onChange={(e) =>
+                setNewMovie({ ...newMovie, director: e.target.value })
+              }
               className="border border-gray-300 rounded px-4 py-2 w-full"
             />
             <input
               placeholder="Movie producer"
+              onChange={(e) =>
+                setNewMovie({ ...newMovie, producer: e.target.value })
+              }
               className="border border-gray-300 rounded px-4 py-2 w-full"
             />
           </div>
           <input
             placeholder="Movie cast"
+            onChange={(e) => setNewMovie({ ...newMovie, cast: e.target.value })}
             className="border border-gray-300 rounded px-4 py-2 w-full"
           />
-          <Button variant="primary" className="py-2 px-6 mx-auto mt-4">
+
+          {/* This handles logic for new movies to be added */}
+          <Button
+            variant="primary"
+            className="py-2 px-6 mx-auto mt-4"
+            onClick={() => {
+              console.log("fart");
+              handleNewMovie();
+            }}
+          >
             Add Movie
           </Button>
         </form>
