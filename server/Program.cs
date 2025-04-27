@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using server.Configurations;
 using server.Data;
+using server.Data.Configurations;
 using server.Interface;
 using server.Repository;
 using Server.Repository;
@@ -25,6 +26,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<MBSDbContext>()
+    .AddDefaultTokenProviders();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -32,6 +37,8 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod()
                .AllowAnyHeader());
 });
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddAutoMapper(typeof(MapperConfig)); // Register AutoMapper
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); // Register Generic Repository
@@ -43,6 +50,7 @@ builder.Services.AddScoped<IAuthService, AuthService>(); // Register Auth Servic
 builder.Services.AddScoped<IBookingsRepository, BookingsRepository>(); // Register Bookings Repository
 builder.Services.AddScoped<ITicketsRepository, TicketsRepository>(); // Register Tickets Repository
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>(); // Register Payments Repository
+// builder.Services.AddScoped<TMDbService>(); // Register TMDbService
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -85,7 +93,15 @@ builder.Services.AddSwaggerGen(options => {
     });
 });  
 
+
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{   
+    var db = scope.ServiceProvider.GetRequiredService<MBSDbContext>();
+    await SeedHelper.SeedMoviesAndShowsAsync(db);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

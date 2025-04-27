@@ -147,3 +147,5 @@ C:\Users\Ritvik Prakash\OneDrive - Texas Tech University\Documents\SWEProject\se
 C:\Users\Ritvik Prakash\OneDrive - Texas Tech University\Documents\SWEProject\server\obj\Debug\net8.0\server.genruntimeconfig.cache
 C:\Users\Ritvik Prakash\OneDrive - Texas Tech University\Documents\SWEProject\server\obj\Debug\net8.0\ref\server.dll
 C:\Users\Ritvik Prakash\OneDrive - Texas Tech University\Documents\SWEProject\server\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Ritvik Prakash\OneDrive - Texas Tech University\Documents\SWEProject\server\bin\Debug\net8.0\RestSharp.dll
+C:\Users\Ritvik Prakash\OneDrive - Texas Tech University\Documents\SWEProject\server\bin\Debug\net8.0\Newtonsoft.Json.dll
