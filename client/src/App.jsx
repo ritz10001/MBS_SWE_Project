@@ -17,14 +17,15 @@ import MemberRoutes from "./layouts/MemberRoutes";
 import AdminRoutes from "./layouts/AdminRoutes";
 import NotFoundPage from "./pages/NotFoundPage";
 import MovieListPage from "./pages/MovieListPage";
+import PurchaseConfirmationPage from "./pages/PurchaseConfirmationPage";
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<MainLayout />} errorElement={<NotFoundPage />}>
+      <Route path="/" element={<MainLayout />}>
         <Route index element={<MovieListPage />} />
         <Route path="/movie/:movieId" element={<MoviePage />} />
-
+        <Route path="/confirmation" element={<PurchaseConfirmationPage />} />
         <Route element={<GuestRoutes />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -35,9 +36,10 @@ const App = () => {
           <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
 
-        <Route element={<AdminRoutes />}>
+        <Route>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     )
   );
