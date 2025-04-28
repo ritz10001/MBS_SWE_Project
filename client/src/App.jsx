@@ -25,7 +25,6 @@ const App = () => {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<MovieListPage />} />
         <Route path="/movie/:movieId" element={<MoviePage />} />
-        <Route path="/confirmation" element={<PurchaseConfirmationPage />} />
         <Route element={<GuestRoutes />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -33,8 +32,9 @@ const App = () => {
 
         <Route element={<MemberRoutes />}>
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/confirmation" element={<PurchaseConfirmationPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
-        <Route path="/checkout" element={<CheckoutPage />} />
 
         <Route element={<AdminRoutes />}>
           <Route path="/admin" element={<AdminPage />} />

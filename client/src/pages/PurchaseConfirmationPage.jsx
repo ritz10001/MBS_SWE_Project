@@ -1,34 +1,39 @@
 import React, { useState, useEffect } from "react";
+import { format, set } from "date-fns";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import Barcode from "react-barcode";
 import Button from "../components/Button";
-import MovieDetails from "../components/MovieDetails";
+import { useLocation, Navigate } from "react-router";
+import LoadingCircle from "../components/LoadingCircle";
 
 const PurchaseConfirmationPage = () => {
+  const location = useLocation();
+  const movie = location?.state;
+
+  const [movieDetails, setMovieDetails] = useState(null);
+  const [ticketCount, setTicketCount] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (movie) {
+      setMovieDetails(movie.showData);
+      setTicketCount(movie.ticketCount);
+    }
+    setLoading(false);
+  }, [movie]);
+
+  const formatter = (txt) => {};
+
   const handlePrint = () => {
     window.print();
   };
 
-  const [ticketDetials, setTicketDetails] = useState({
-    ids: ["1234567890123", "1234567890124", "1234567890125"],
-  });
-
-  const [movieDetails, setMovieDetails] = useState({
-    title: "Karate Kid: Legends",
-    year: 2025,
-    location: "Lubbock, Texas",
-    date: "March 30, 2025 at 7:50 PM",
-    poster: "/Karate_Kid_Legends_Poster.jpg",
-  });
-
-  useEffect(() => {
-    getMovieDetails = async () => {
-      const details = await fetch("/api/movie/1");
-      const data = await response.json();
-      setMovieDetails(data);
-    }
-    getMovieDetails();
-  });
+  if (loading)
+    return (
+      <div className="flex justify-center py-40">
+        <LoadingCircle className="w-8 h-8" />
+      </div>
+    );
 
   return (
     <>
@@ -50,32 +55,30 @@ const PurchaseConfirmationPage = () => {
           {/* Top Row */}
           <div className="grid grid-cols-[17%_1fr] gap-x-4 pb-4 print:grid-cols-1 print:justify-center print:items-center">
             <img
-              src="/Karate_Kid_Legends_Poster.jpg"
+              src={movieDetails.movieImageUrl}
               alt="Karate Kid Legends"
               className="w-auto h-auto rounded-lg shadow-lg print:hidden"
             />
             <div className="flex flex-col justify-between print:justify-center">
               <div>
                 <div className="font-bold text-black text-xl">
-                  {movieDetails.title}
+                  {movieDetails.movieTitle}
                 </div>
                 <span className="text-gray-500">2025</span>
               </div>
               <div className="text-black mt-4">
                 <div className="flex items-center gap-2">
                   <FaLocationPin className="print:hidden" />
-                  <span>{movieDetails.location}</span>
+                  <span>{movieDetails.theatreLocation}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FaClock className="print:hidden" />
-                  <span>{movieDetails.date}</span>
+                  <span>{format(new Date(movieDetails.showTime), "PPPp")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FaStar className="print:hidden" />
                   <span>
-                    {ticketDetials.ids.length > 1
-                      ? `${ticketDetials.ids.length} tickets`
-                      : `${ticketDetials.ids.length} ticket`}
+                    {ticketCount} ticket{ticketCount == 1 ? "" : "s"}
                   </span>
                 </div>
               </div>
@@ -87,7 +90,10 @@ const PurchaseConfirmationPage = () => {
               Display barcode at theater to check in
             </div>
             <Barcode
-              value={ticketDetials}
+              value={{
+                ticketCount: ticketCount,
+                movieDetails: movieDetails,
+              }}
               width={2}
               height={100}
               background="#ececec"
@@ -95,7 +101,10 @@ const PurchaseConfirmationPage = () => {
               className="print:hidden"
             />
             <Barcode
-              value={ticketDetials}
+              value={{
+                ticketCount: ticketCount,
+                movieDetails: movieDetails,
+              }}
               width={2}
               height={100}
               text="Ticket"
