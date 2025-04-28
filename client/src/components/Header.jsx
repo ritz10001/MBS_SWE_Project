@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { set } from "react-hook-form"
 import Button from "./Button"
 import useClickOutside from "../util/useClickOutside"
+import IsAdmin from "./IsAdmin"
 
 const SearchBar = () => {
   const navigate = useNavigate();
@@ -79,6 +80,11 @@ const Header = () => {
                   <Button variant="default" width="full" className="text-nowrap" href="/profile" onClick={() => setIsUserDropdownOpen(false)}>
                     View Profile
                   </Button>
+                  <IsAdmin>
+                    <Button variant="primary" width="full" className="text-nowrap" href="/admin" onClick={() => setIsUserDropdownOpen(false)}>
+                      Admin Panel
+                    </Button>
+                  </IsAdmin>
                   <Button variant="danger" width="full" className="text-nowrap" onClick={() => {
                     logout()
                     setIsUserDropdownOpen(false)
@@ -155,11 +161,14 @@ const Header = () => {
                     {isAuthenticated ? (
                       <>
                         <span className="text-gray-800 font-bold">{userDetails?.firstName} {userDetails?.lastName}</span>
-                        <span className="text-gray-600 hover:text-gray-800 text-left">
-                          <NavLink to="/profile" onClick={() => setIsMenuOpen(false)}>
-                            Profile
+                        <NavLink to="/profile" onClick={() => setIsMenuOpen(false)} className="text-gray-600 hover:text-gray-800 text-left">
+                          Profile
+                        </NavLink>
+                        <IsAdmin>
+                          <NavLink to="/admin" onClick={() => setIsMenuOpen(false)} className="text-gray-600 hover:text-gray-800 text-left">
+                            Admin Panel
                           </NavLink>
-                        </span>
+                        </IsAdmin>
                         <button 
                           onClick={() => {
                             logout();

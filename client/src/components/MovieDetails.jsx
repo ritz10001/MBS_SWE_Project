@@ -2,6 +2,7 @@ import { FaCalendarAlt, FaClock, FaStar } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import Button from "./Button";
+import IsAdmin from "./IsAdmin";
 
 const MovieDetails = ({ data }) => {
   const hours = Math.floor(data.duration / 60);
@@ -48,7 +49,7 @@ const MovieDetails = ({ data }) => {
   }, {}) || {};
 
   return <>
-    <div className="grid grid-cols-1 md:grid-cols-[20%_1fr] gap-6 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-[20%_1fr_min-content] gap-6 mb-6">
       <img src={data.imageUrl} alt={data.title} className="w-full max-w-xs mx-auto md:max-w-none h-auto rounded-lg shadow-lg aspect-[2/3]" />
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">{data.title}</h1>
@@ -72,6 +73,16 @@ const MovieDetails = ({ data }) => {
           <div className="mt-2"><span className="font-bold">Director:</span> {data.director}</div>
         </div>
       </div>
+      <IsAdmin>
+        <div className="text-nowrap flex flex-col gap-2 align-end">
+          <Button variant="danger">
+            Delete Movie
+          </Button>
+          <Button variant="primary">
+            Edit Movie
+          </Button>
+        </div>
+      </IsAdmin>
     </div>
     <div className="mb-8">
       <p className="text-gray-700 border-l-2 pl-4 border-gray-300 py-2">
