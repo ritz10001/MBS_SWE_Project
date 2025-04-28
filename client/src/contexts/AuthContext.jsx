@@ -1,5 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 import { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '../util/apiFetch';
 
 const AuthContext = createContext(null);
 
@@ -12,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await fetch('http://localhost:5168/api/user/user-details', {
+      const response = await apiFetch(`/api/user/user-details`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

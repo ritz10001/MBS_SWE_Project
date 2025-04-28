@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router';
 import FormInput from '../components/FormInput';
+import { apiFetch } from '../util/apiFetch';
 
 const SignupPage = () => {
   const {

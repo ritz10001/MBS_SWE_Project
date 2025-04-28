@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import Button from "../components/Button";
-import { useNavigate } from "react-router";
-import FormInput from "../components/FormInput";
-import { useAuth } from "../contexts/AuthContext";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import Button from '../components/Button';
+import { useNavigate } from 'react-router';
+import FormInput from '../components/FormInput';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const {
@@ -26,16 +26,13 @@ const LoginPage = () => {
     setIsRegistering(true);
 
     try {
-      const response = await fetch(
-        "http://moivebookingsystem.xyz/api/account/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch('http://localhost:5168/api/account/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
 
       const result = await response.json();
       if (response.ok) {
