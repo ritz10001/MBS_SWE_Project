@@ -13,11 +13,12 @@ const CheckoutPage = () => {
   const params = new URLSearchParams(location.search);
 
   const showId = params.get("showId");
-  const ticketCount = params.get("tickets");
+  const ticketCount =
+    Math.abs(params.get("tickets")) > 10 ? 10 : Math.abs(params.get("tickets"));
 
   const [showData, setShowData] = useState(null);
 
-  const subtotal = showData?.ticketPrice * ticketCount;
+  const subtotal = showData?.ticketPrice * Math.abs(ticketCount);
   const taxRate = 0.0825; // 8.25% tax rate lol bro put tax rates
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
