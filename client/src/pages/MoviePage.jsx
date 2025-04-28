@@ -3,7 +3,6 @@ import Reviews from '../components/Reviews'
 import { useNavigate, useParams } from 'react-router'
 import { useEffect, useState } from 'react'
 import LoadingCircle from '../components/LoadingCircle'
-import { apiFetch } from '../util/apiFetch'
 
 const MoviePage = () => {
   const navigate = useNavigate();

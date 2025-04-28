@@ -1,6 +1,5 @@
-import { jwtDecode } from 'jwt-decode';
-import { createContext, useContext, useState, useEffect } from 'react';
-import { apiFetch } from '../util/apiFetch';
+import { jwtDecode } from "jwt-decode";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
 
@@ -13,34 +12,40 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await apiFetch(`/api/user/user-details`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `https://www.moviebookingsystem.xyz/api/user/user-details`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         setUserDetails(data);
 
         const tokenPayload = jwtDecode(token);
-        const roles = tokenPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']?.split(',') ?? [];
+        const roles =
+          tokenPayload[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ]?.split(",") ?? [];
         setUserRoles(roles);
 
         setIsAuthenticated(true);
       } else {
-        console.error('Failed to fetch user details');
+        console.error("Failed to fetch user details");
         logout();
       }
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error("Error fetching user details:", error);
       logout();
     }
   };
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUserId = localStorage.getItem('userId');
+    const storedToken = localStorage.getItem("token");
+    const storedUserId = localStorage.getItem("userId");
 
     if (storedToken && storedUserId) {
       setToken(storedToken);
@@ -57,15 +62,15 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = (newToken, newUserId) => {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('userId', newUserId);
+    localStorage.setItem("token", newToken);
+    localStorage.setItem("userId", newUserId);
     setToken(newToken);
     setUserId(newUserId);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     setToken(null);
     setUserId(null);
     setUserDetails(null);
@@ -74,15 +79,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      userId,
-      token,
-      userDetails,
-      userRoles,
-      login,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        userId,
+        token,
+        userDetails,
+        userRoles,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -91,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}; 
+};

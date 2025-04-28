@@ -1,7 +1,6 @@
 import { NavLink, useLocation, useNavigate, useParams } from 'react-router'
 import { useEffect, useState } from 'react'
 import LoadingCircle from '../components/LoadingCircle'
-import { apiFetch } from '../util/apiFetch';
 
 const MovieListPage = () => {
   const location = useLocation();
