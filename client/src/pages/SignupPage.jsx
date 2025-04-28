@@ -25,7 +25,7 @@ const SignupPage = () => {
     setIsRegistering(true);
 
     try {
-      const response = await fetch('http://localhost:5168/api/account/register', {
+      const response = await fetch('http://moivebookingsystem.xyz/api/account/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

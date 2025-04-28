@@ -21,6 +21,15 @@ const PurchaseConfirmationPage = () => {
     poster: "/Karate_Kid_Legends_Poster.jpg",
   });
 
+  useEffect(() => {
+    getMovieDetails = async () => {
+      const details = await fetch("/api/movie/1");
+      const data = await response.json();
+      setMovieDetails(data);
+    }
+    getMovieDetails();
+  });
+
   return (
     <>
       <div className="max-w-5xl mx-auto py-6 px-4 flex flex-col">
