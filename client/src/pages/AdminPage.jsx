@@ -10,7 +10,7 @@ const AdminPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await fetch(
-          "http://moviebookingsystem.xyz/api/booking/getAllBookings",
+          "https://www.moviebookingsystem.xyz/api/booking/getAllBookings",
           {
             method: "GET",
           }
@@ -39,7 +39,7 @@ const AdminPage = () => {
 
   const handleNewMovie = async () => {
     try {
-      fetch("http://moviebookingsystem.xyz/api/movies", {
+      fetch("https://www.moviebookingsystem.xyz/api/movies", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const AdminPage = () => {
   const handleTimeRangeChange = async (e) => {
     await setTimeRange(e.target.value);
     try {
-      const response = await fetch(`http://moviebookingsystem.xyz/api/movies`);
+      const response = await fetch(`https://www.moviebookingsystem.xyz/api/movies`);
       if (!response.ok) {
         throw new Error("Failed to fetch movie data");
       }
