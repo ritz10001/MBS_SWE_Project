@@ -1,12 +1,30 @@
 import React, { useState, useEffect, use } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
+import { useForm } from "react-hook-form";
+import FormInput from "../components/FormInput";
+import { useNavigate } from "react-router";
 
 const AdminPage = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
+
+  const navigate = useNavigate();
+
   const { token } = useAuth();
   const [timeRange, setTimeRange] = useState("Today");
   const [data, setData] = useState([]);
   const [movies, setMovies] = useState([]);
+  
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,35 +55,35 @@ const AdminPage = () => {
     fetchData();
   }, []);
 
-  const [newMovie, setNewMovie] = useState({
-    title: "",
-    date: "",
-    description: "",
-    director: "",
-    producer: "",
-    cast: "",
-  });
+  const onSubmit = async (data) => {
+    if (isCreating) return;
+    setIsCreating(true);
 
-  const handleNewMovie = async () => {
     try {
-      fetch("https://www.moviebookingsystem.xyz/api/movies", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newMovie),
-      });
+      const response = await fetch(
+        "https://www.moviebookingsystem.xyz/api/movies",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to add movie");
+      const result = await response.json();
+      if (response.ok) {
+        navigate(`/movie/${result.id}`)
+      } else {
+        setCreateError(result.message);
       }
-
-      const data = await response.json();
-      console.log("Movie added successfully:", data);
     } catch (error) {
-      console.error("Error posting movie:", error);
+      console.error("Login error", error);
+      setCreateError("Something went wrong. Try again.");
     }
+
+    setIsCreating(false);
   };
 
   const handleTimeRangeChange = async (e) => {
@@ -173,60 +191,86 @@ const AdminPage = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-4">
           Add New Movie
         </h1>
-        <form className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              placeholder="Movie title"
-              onChange={(e) =>
-                setNewMovie({ ...newMovie, title: e.target.value })
-              }
-              className="border border-gray-300 rounded px-4 py-2 w-full"
-            />
-            <input
-              placeholder="DD/MM/YY"
-              className="border border-gray-300 rounded px-4 py-2 w-full"
-            />
-          </div>
-          <textarea
-            placeholder="Movie description"
-            onChange={(e) =>
-              setNewMovie({ ...newMovie, description: e.target.value })
-            }
-            className="border border-gray-300 rounded px-4 py-2 w-full h-32"
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+          <FormInput
+            id="Title"
+            label="Movie Title"
+            disabled={isCreating}
+            error={errors.Title?.message}
+            {...register("Title", {
+              required: "Movie title is required",
+            })}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              placeholder="Movie director"
-              onChange={(e) =>
-                setNewMovie({ ...newMovie, director: e.target.value })
-              }
-              className="border border-gray-300 rounded px-4 py-2 w-full"
+          <FormInput
+            id="Description"
+            label="Movie Description"
+            disabled={isCreating}
+            error={errors.Description?.message}
+            {...register("Description", { required: "Movie description is required" })}
+          />
+          <div className="md:grid md:grid-cols-3 space-y-4 md:space-y-0 md:space-x-4">
+            <FormInput
+              id="Genre"
+              label="Genre"
+              disabled={isCreating}
+              error={errors.Genre?.message}
+              {...register("Genre", { required: "Genre is required" })}
             />
-            <input
-              placeholder="Movie producer"
-              onChange={(e) =>
-                setNewMovie({ ...newMovie, producer: e.target.value })
-              }
-              className="border border-gray-300 rounded px-4 py-2 w-full"
+            <FormInput
+              id="ReleaseDate"
+              type="date"
+              label="Release Date"
+              disabled={isCreating}
+              error={errors.ReleaseDate?.message}
+              {...register("ReleaseDate", { required: "Release date is required" })}
+            />
+            <FormInput
+              id="Duration"
+              type="number"
+              label="Movie Duration (mins)"
+              disabled={isCreating}
+              error={errors.Duration?.message}
+              {...register("Duration", {
+                required: "Movie duration is required"
+              })}
             />
           </div>
-          <input
-            placeholder="Movie cast"
-            onChange={(e) => setNewMovie({ ...newMovie, cast: e.target.value })}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
+          <FormInput
+            id="Director"
+            label="Director"
+            disabled={isCreating}
+            error={errors.Director?.message}
+            {...register("Director", {
+              required: "Director is required"
+            })}
+          />
+          <FormInput
+            id="Cast"
+            label="Cast"
+            disabled={isCreating}
+            error={errors.Cast?.message}
+            {...register("Cast", { required: "Cast is required" })}
+          />
+          <FormInput
+            id="ImageUrl"
+            type="url"
+            label="Movie Poster URL"
+            disabled={isCreating}
+            error={errors.ImageUrl?.message}
+            {...register("ImageUrl", { required: "Movie poster URL is required" })}
           />
 
-          {/* This handles logic for new movies to be added */}
           <Button
+            type="submit"
+            loading={isCreating}
+            width="full"
             variant="primary"
-            className="py-2 px-6 mx-auto mt-4"
-            onClick={() => {
-              console.log("fart");
-              handleNewMovie();
-            }}
           >
             Add Movie
           </Button>
+          {createError && (
+            <p className="mt-1 text-sm text-red-600">{createError}</p>
+          )}
         </form>
       </div>
     </div>
