@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaPhone } from "react-icons/fa";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
 
 const UserPage = () => {
-  const [isEditing, setIsEditing] = useState(false);
   const { userDetails, userRoles, token } = useAuth();
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [localDetails, setLocalDetails] = useState({ ...userDetails });
-
   const [movieHistory, setMovieHistory] = useState([
     {
       title: "Karate Kid: Legends",
@@ -20,6 +20,20 @@ const UserPage = () => {
       poster: "/public/Karate_Kid_Legends_Poster.jpg",
     },
   ]);
+
+  // useEffect(() => {
+  //   const getMovieHistory = async () => {
+  //     try{
+  //       const response = await fetch(`https://www.moviebookingsystem.xyz/api/}`);
+  //       if (!response.ok) throw new Error('Failed to fetch movie data');
+  //       const data = await response.json();
+  //       setMovieData(data);
+  //     } catch(err) {
+  //       console.log(err);
+  //     }
+  //   };
+  //   getMovieHistory();
+  // }, []);
 
   const toggleEditWindow = () => {
     setIsEditing(!isEditing);
@@ -43,34 +57,32 @@ const UserPage = () => {
   };
 
   const saveDetails = () => {
-    //TODO: make api call to update user details in the database and make backend method for updating user details
-
-    // const updateUserDetails = async () => {
-    //   try {
-    //     const response = await fetch(
-    //       "https://www.moviebookingsystem.xyz/api/account",
-    //       {
-    //         method: "GET",
-    //         headers: {
-    //           Authorization: `Bearer ${token}`,
-    //           "Content-Type": "application/json",
-    //         },
-    //       }
-    //     );
-    //     if (!response.ok) {
-    //       console.log("Failed to fetch data");
-    //       return;
-    //     }
-    //     const data = await response.json();
-
-    //     console.log("Fetched data:", data);
-
-    //     setData(data);
-    //   } catch (error) {
-    //     console.error("Error fetching data:", error);
-    //   }
-    // };
-    // updateUserDetails();
+    const updateUserDetails = async () => {
+      try {
+        const response = await fetch(
+          "https://www.moviebookingsystem.xyz/api/user/update-profile",
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(localDetails),
+          }
+        );
+        if (!response.ok) {
+          console.log("Failed to update user data");
+          return;
+        }
+        const data = await response.json();
+        console.log("Returned: ", data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    setLoading(true);
+    updateUserDetails();
     setIsEditing(false);
   };
 
