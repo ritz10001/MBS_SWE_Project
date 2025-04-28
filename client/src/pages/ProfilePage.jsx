@@ -1,39 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaPhone } from "react-icons/fa";
-import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
+import LoadingCircle from "../components/LoadingCircle";
+import ShowingCard from "../components/ShowingCard";
 
 const UserPage = () => {
   const { userDetails, userRoles, token } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [localDetails, setLocalDetails] = useState({ ...userDetails });
-  const [movieHistory, setMovieHistory] = useState([
-    {
-      title: "Karate Kid: Legends",
-      year: 2025,
-      location: "Lubbock, Texas",
-      date: "March 30, 2025 at 7:50 PM",
-      tickets: 3,
-      poster: "/public/Karate_Kid_Legends_Poster.jpg",
-    },
-  ]);
+  
+  const [bookingsData, setBookingsData] = useState(null);
 
-  // useEffect(() => {
-  //   const getMovieHistory = async () => {
-  //     try{
-  //       const response = await fetch(`https://www.moviebookingsystem.xyz/api/}`);
-  //       if (!response.ok) throw new Error('Failed to fetch movie data');
-  //       const data = await response.json();
-  //       setMovieData(data);
-  //     } catch(err) {
-  //       console.log(err);
-  //     }
-  //   };
-  //   getMovieHistory();
-  // }, []);
+  useEffect(() => {
+    const fetchBookingsData = async () => {
+      try {
+        const response = await fetch(`https://www.moviebookingsystem.xyz/api/booking/getMyBookings`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch booking data');
+        const data = await response.json();
+        setBookingsData(data);
+      } catch (error) {
+        console.error(error);
+        setError(true);
+      }
+    };
+
+    fetchBookingsData();
+  }, []);
 
   const toggleEditWindow = () => {
     setIsEditing(!isEditing);
@@ -58,6 +58,7 @@ const UserPage = () => {
 
   const saveDetails = () => {
     const updateUserDetails = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(
           "https://www.moviebookingsystem.xyz/api/user/update-profile",
@@ -76,14 +77,13 @@ const UserPage = () => {
         }
         const data = await response.json();
         console.log("Returned: ", data);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+      setIsLoading(false);
+      setIsEditing(false);
     };
-    setLoading(true);
     updateUserDetails();
-    setIsEditing(false);
   };
 
   return (
@@ -204,6 +204,7 @@ const UserPage = () => {
                   onClick={toggleEditWindow}
                   className="px-4 py-2"
                   variant="default"
+                  disabled={isLoading}
                 >
                   Cancel
                 </Button>
@@ -211,6 +212,7 @@ const UserPage = () => {
                   onClick={saveDetails}
                   className="px-4 py-2"
                   variant="primary"
+                  disabled={isLoading}
                 >
                   Update Profile
                 </Button>
@@ -225,7 +227,19 @@ const UserPage = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
           Movie Purchase History
         </h1>
-        {movieHistory.map((movie, index) => (
+        {!bookingsData && <div className="flex justify-center py-20"><LoadingCircle className="w-8 h-8"/></div>}
+        {bookingsData && !bookingsData.length && <div className="flex justify-center py-20"><h1 className="text-2xl md:text-3xl font-bold text-black mb-1">No bookings found</h1></div>}
+        {bookingsData && bookingsData.length && <div className="space-y-4">{bookingsData.map((booking, index) => {
+          return <ShowingCard
+            key={index}
+            title={booking.movieTitle}
+            imageUrl={booking.movieImageUrl}
+            theatreLocation={booking.theatreLocation}
+            showTime={booking.showTime}
+            ticketCount={booking.numberOfTickets}
+          />
+        })}</div>}
+        {/*movieHistory.map((movie, index) => (
           <div
             key={index}
             className="rounded-xl bg-[#ececec] shadow-xl px-4 py-4 grid grid-cols-[17%_1fr] gap-4 mb-4"
@@ -258,7 +272,7 @@ const UserPage = () => {
               </div>
             </div>
           </div>
-        ))}
+        ))*/}
       </div>
     </>
   );

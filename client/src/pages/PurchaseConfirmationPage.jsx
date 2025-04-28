@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import Barcode from "react-barcode";
 import Button from "../components/Button";
@@ -21,8 +21,6 @@ const PurchaseConfirmationPage = () => {
     }
     setLoading(false);
   }, [movie]);
-
-  const formatter = (txt) => {};
 
   const handlePrint = () => {
     window.print();

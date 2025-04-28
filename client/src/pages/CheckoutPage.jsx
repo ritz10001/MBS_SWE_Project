@@ -1,10 +1,9 @@
-import { format, set } from "date-fns";
 import React, { useState, useEffect } from "react";
-import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import { Navigate, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
 import LoadingCircle from "../components/LoadingCircle";
+import ShowingCard from "../components/ShowingCard";
 
 const CheckoutPage = () => {
   const { isAuthenticated, token } = useAuth();
@@ -17,6 +16,15 @@ const CheckoutPage = () => {
     Math.abs(params.get("tickets")) > 10 ? 10 : Math.abs(params.get("tickets"));
 
   const [showData, setShowData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+
+  const [paymentInfo, setPaymentInfo] = useState({
+    cardholderName: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: ""
+  })
 
   const subtotal = showData?.ticketPrice * Math.abs(ticketCount);
   const taxRate = 0.0825; // 8.25% tax rate lol bro put tax rates
@@ -49,6 +57,32 @@ const CheckoutPage = () => {
     }
   };
 
+  const handlePayment = async (paymentType) => {
+    setIsLoading(true);
+    const response = await fetch(
+      `https://www.moviebookingsystem.xyz/api/payments/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          PaymentMethod: paymentType,
+          NumberOfTickets: ticketCount,
+          ShowId: showId,
+          /* todo: include card details */
+        })
+      }
+    )
+    if (!response.ok) {
+      setPaymentError("Payment failed. Please try again");
+      console.error("Payment failed", response.statusText);
+    } else {
+      console.log(await response.json());
+      navigate("/confirmation", { state: { showData, ticketCount } });
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated == null) return;
 
@@ -68,10 +102,6 @@ const CheckoutPage = () => {
 
   if (!showId) return <Navigate to="/" replace />;
 
-  const handlePayment = async () => {
-    navigate("/confirmation", { state: { showData, ticketCount } });
-  };
-
   return (
     <>
       <title>Checkout Tickets | MBS</title>
@@ -81,37 +111,13 @@ const CheckoutPage = () => {
         </h1>
         <div className="grid lg:grid-cols-[60%_1fr] mt-4">
           <div>
-            <div className="rounded-xl bg-[#ececec] shadow-xl px-4 py-4 grid grid-cols-[17%_1fr] gap-4">
-              <img
-                src={showData.movieImageUrl}
-                alt={showData.movieTitle}
-                className="w-auto h-auto rounded-lg shadow-lg aspect-[2/3]"
-              />
-              <div className="flex flex-col justify-between">
-                <div>
-                  <div className="font-bold text-black text-xl">
-                    {showData.movieTitle}
-                  </div>
-                  <span className="text-gray-500"></span>
-                </div>
-                <div className="text-black mt-4">
-                  <div className="flex items-center gap-2">
-                    <FaLocationPin />
-                    <span>{showData.theatreLocation}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaClock />
-                    <span>{format(new Date(showData.showTime), "PPPp")}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaStar />
-                    <span>
-                      {ticketCount} ticket{ticketCount == 1 ? "" : "s"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ShowingCard
+              title={showData.movieTitle}
+              imageUrl={showData.movieImageUrl}
+              theatreLocation={showData.theatreLocation}
+              showTime={showData.showTime}
+              ticketCount={ticketCount}
+            />
 
             {/* cost total */}
             <div className="mt-6">
@@ -135,14 +141,16 @@ const CheckoutPage = () => {
             <Button
               variant="primary"
               className="bg-blue-800 w-full hover:bg-blue-900"
-              onClick={handlePayment}
+              onClick={() => handlePayment("PayPal")}
+              disabled={isLoading}
             >
               Checkout With Paypal
             </Button>
             <Button
               variant="primary"
               className="w-full"
-              onClick={handlePayment}
+              onClick={() => handlePayment("Venmo")}
+              disabled={isLoading}
             >
               Checkout With Venmo
             </Button>
@@ -155,48 +163,55 @@ const CheckoutPage = () => {
             <div>
               <input
                 placeholder="Cardholder's Name"
-                onEnter={(e) =>
+                onChange={(e) =>
                   setPaymentInfo({
                     ...paymentInfo,
                     cardholderName: e.target.value,
                   })
                 }
+                value={paymentInfo.cardholderName}
                 className="border border-gray-300 rounded px-4 py-2 w-full"
               />
             </div>
             <div>
               <input
                 placeholder="Card Number"
-                onEnter={(e) =>
+                onChange={(e) =>
                   setPaymentInfo({ ...paymentInfo, cardNumber: e.target.value })
                 }
+                value={paymentInfo.cardNumber}
                 className="border border-gray-300 rounded px-4 py-2 w-full"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <input
                 placeholder="MM/YY"
-                onEnter={(e) =>
+                onChange={(e) =>
                   setPaymentInfo({ ...paymentInfo, expiryDate: e.target.value })
                 }
+                value={paymentInfo.expiryDate}
                 className="border border-gray-300 rounded px-4 py-2 w-full"
               />
               <input
                 placeholder="CVV"
-                onEnter={(e) =>
+                onChange={(e) =>
                   setPaymentInfo({ ...paymentInfo, cvv: e.target.value })
                 }
+                value={paymentInfo.cvv}
                 className="border border-gray-300 rounded px-4 py-2 w-full"
               />
             </div>
-            {}
             <Button
               variant="primary"
               className="w-full"
-              onClick={handlePayment}
+              onClick={() => handlePayment("Card")}
+              disabled={isLoading}
             >
               Checkout with Card
             </Button>
+            {paymentError && (
+              <p className="mt-1 text-sm text-red-600">{paymentError}</p>
+            )}
           </div>
         </div>
       </div>
