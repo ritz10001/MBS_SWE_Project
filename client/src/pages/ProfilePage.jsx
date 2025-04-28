@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaPhone } from "react-icons/fa";
 import { FaLocationPin, FaClock, FaStar } from "react-icons/fa6";
 import { useAuth } from "../contexts/AuthContext";
+import Button from "../components/Button";
 
 const UserPage = () => {
   const [isEditing, setIsEditing] = useState(false);
