@@ -42,7 +42,6 @@ public class ShowsController : ControllerBase {
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<GetShowDTO>> GetShow(int id) {
         var record = await _showsRepostory.GetShowWithDetails(id);
         if (record == null) {
