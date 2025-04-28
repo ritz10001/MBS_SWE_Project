@@ -26,11 +26,10 @@ export const AuthProvider = ({ children }) => {
         setUserDetails(data);
 
         const tokenPayload = jwtDecode(token);
-        const roles =
-          tokenPayload[
-            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-          ]?.split(",") ?? [];
-        setUserRoles(roles);
+        console.log(tokenPayload);
+
+        const roles = tokenPayload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        setUserRoles(typeof roles === "string" ? [roles] : roles);
 
         setIsAuthenticated(true);
       } else {
