@@ -15,7 +15,7 @@ const MovieListPage = () => {
   useEffect(() => {
     const fetchMoviesData = async () => {
       try {
-        const response = await fetch(`http://moivebookingsystem.xyz/api/movies`);
+        const response = await fetch(`http://moviebookingsystem.xyz/api/movies`);
         if (!response.ok) throw new Error('Failed to fetch movie data');
         const data = await response.json();
         setMoviesData(data);

@@ -27,7 +27,7 @@ const LoginPage = () => {
 
     try {
       const response = await fetch(
-        "http://moivebookingsystem.xyz/api/account/login",
+        "http://moviebookingsystem.xyz/api/account/login",
         {
           method: "POST",
           headers: {
