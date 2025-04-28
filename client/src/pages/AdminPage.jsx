@@ -1,31 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
 
 const AdminPage = () => {
+  const { token } = useAuth();
   const [timeRange, setTimeRange] = useState("Today");
-
+  const [data, setData] = useState([]);
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
-    const fetchMovies = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetch(
           "https://www.moviebookingsystem.xyz/api/booking/getAllBookings",
           {
             method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
         );
         if (!response.ok) {
-          console.log("Failed to fetch movie data");
+          console.log("Failed to fetch data");
           return;
         }
         const data = await response.json();
-        setMovies(data);
+
+        console.log("Fetched data:", data);
+
+        setData(data);
       } catch (error) {
-        console.error("Error fetching movies:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    fetchMovies();
+    fetchData();
   }, []);
 
   const [newMovie, setNewMovie] = useState({
@@ -43,6 +52,7 @@ const AdminPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newMovie),
       });
@@ -60,16 +70,6 @@ const AdminPage = () => {
 
   const handleTimeRangeChange = async (e) => {
     await setTimeRange(e.target.value);
-    try {
-      const response = await fetch(`https://www.moviebookingsystem.xyz/api/movies`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch movie data");
-      }
-      const data = await response.json();
-      setMovies(data);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-    }
   };
 
   return (
