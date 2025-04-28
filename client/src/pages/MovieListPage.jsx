@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useNavigate, useParams } from 'react-router'
 import { useEffect, useState } from 'react'
 import LoadingCircle from '../components/LoadingCircle'
+import { apiFetch } from '../util/apiFetch';
 
 const MovieListPage = () => {
   const location = useLocation();
@@ -15,7 +16,7 @@ const MovieListPage = () => {
   useEffect(() => {
     const fetchMoviesData = async () => {
       try {
-        const response = await fetch(`http://localhost:5168/api/movies`);
+        const response = await apiFetch(`/api/movies`);
         if (!response.ok) throw new Error('Failed to fetch movie data');
         const data = await response.json();
         setMoviesData(data);

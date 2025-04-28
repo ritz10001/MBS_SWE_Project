@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import { useNavigate } from 'react-router';
 import FormInput from '../components/FormInput';
 import { useAuth } from '../contexts/AuthContext';
+import { apiFetch } from '../util/apiFetch';
 
 const LoginPage = () => {
   const {
@@ -26,7 +27,7 @@ const LoginPage = () => {
     setIsRegistering(true);
 
     try {
-      const response = await fetch('http://localhost:5168/api/account/login', {
+      const response = await apiFetch('/api/account/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

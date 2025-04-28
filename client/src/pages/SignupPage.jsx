@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router';
 import FormInput from '../components/FormInput';
+import { apiFetch } from '../util/apiFetch';
 
 const SignupPage = () => {
   const {
@@ -25,7 +26,7 @@ const SignupPage = () => {
     setIsRegistering(true);
 
     try {
-      const response = await fetch('http://localhost:5168/api/account/register', {
+      const response = await apiFetch('/api/account/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
