@@ -27,7 +27,7 @@ const CheckoutPage = () => {
   })
 
   const subtotal = showData?.ticketPrice * Math.abs(ticketCount);
-  const taxRate = 0.0825; // 8.25% tax rate lol bro put tax rates
+  const taxRate = 0.0825; // 8.25% tax rate lol bro put tax rates also this doesn't match tax rate in backend
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
 

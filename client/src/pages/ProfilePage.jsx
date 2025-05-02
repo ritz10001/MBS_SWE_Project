@@ -12,18 +12,21 @@ const UserPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [localDetails, setLocalDetails] = useState({ ...userDetails });
-  
+
   const [bookingsData, setBookingsData] = useState(null);
 
   useEffect(() => {
     const fetchBookingsData = async () => {
       try {
-        const response = await fetch(`https://www.moviebookingsystem.xyz/api/booking/getMyBookings`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `https://www.moviebookingsystem.xyz/api/booking/getMyBookings`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
-        if (!response.ok) throw new Error('Failed to fetch booking data');
+        );
+        if (!response.ok) throw new Error("Failed to fetch booking data");
         const data = await response.json();
         setBookingsData(data);
       } catch (error) {
@@ -227,18 +230,34 @@ const UserPage = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
           Movie Purchase History
         </h1>
-        {!bookingsData && <div className="flex justify-center py-20"><LoadingCircle className="w-8 h-8"/></div>}
-        {bookingsData && !bookingsData.length && <div className="flex justify-center py-20"><h1 className="text-2xl md:text-3xl font-bold text-black mb-1">No bookings found</h1></div>}
-        {bookingsData && bookingsData.length && <div className="space-y-4">{bookingsData.map((booking, index) => {
-          return <ShowingCard
-            key={index}
-            title={booking.movieTitle}
-            imageUrl={booking.movieImageUrl}
-            theatreLocation={booking.theatreLocation}
-            showTime={booking.showTime}
-            ticketCount={booking.numberOfTickets}
-          />
-        })}</div>}
+        {!bookingsData && (
+          <div className="flex justify-center py-20">
+            <LoadingCircle className="w-8 h-8" />
+          </div>
+        )}
+        {bookingsData && !bookingsData.length && (
+          <div className="flex justify-center py-20">
+            <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
+              No bookings found
+            </h1>
+          </div>
+        )}
+        {bookingsData && bookingsData.length && (
+          <div className="space-y-4">
+            {bookingsData.map((booking, index) => {
+              return (
+                <ShowingCard
+                  key={index}
+                  title={booking.movieTitle}
+                  imageUrl={booking.movieImageUrl}
+                  theatreLocation={booking.theatreLocation} // this doesn't display location
+                  showTime={booking.showTime}
+                  ticketCount={booking.numberOfTickets}
+                />
+              );
+            })}
+          </div>
+        )}
         {/*movieHistory.map((movie, index) => (
           <div
             key={index}

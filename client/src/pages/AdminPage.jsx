@@ -17,20 +17,20 @@ const AdminPage = () => {
   });
 
   const navigate = useNavigate();
-
   const { token } = useAuth();
-  const [timeRange, setTimeRange] = useState("Today");
-  const [data, setData] = useState([]);
-  const [movies, setMovies] = useState([]);
-  
+  const [currentShows, setCurrentShows] = useState({}); // hash map of movies to data
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState(null);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalMovies, setTotalMovies] = useState(0);
+  const [fetchingBookings, setfetchingBookings] = useState(true);
 
+  // handles getting show data from api
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://www.moviebookingsystem.xyz/api/booking/getAllBookings",
+          "https://www.moviebookingsystem.xyz/api/shows",
           {
             method: "GET",
             headers: {
@@ -40,14 +40,11 @@ const AdminPage = () => {
           }
         );
         if (!response.ok) {
-          console.log("Failed to fetch data");
+          console.log("Failed to fetch Shows");
           return;
         }
-        const data = await response.json();
-
-        console.log("Fetched data:", data);
-
-        setData(data);
+        const shows = await response.json();
+        console.log(shows);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -55,18 +52,71 @@ const AdminPage = () => {
     fetchData();
   }, []);
 
+  // handles total revenue
+  useEffect(() => {
+    const getBookings = async () => {
+      try {
+        const res = await fetch(
+          "https://www.moviebookingsystem.xyz/api/booking/getAllBookings",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!res.ok) {
+          console.log("Failed to fetch Bookings");
+          return;
+        }
+        const data = await res.json();
+        let total = 0;
+        const date = new Date();
+        const newShows = { ...currentShows };
+
+        for (let i = 0; i < data.length; i++) {
+          const booking = data[i];
+          total += booking.totalAmount;
+          // Update the shows object directly
+          if (newShows[booking.movieTitle]) {
+            newShows[booking.movieTitle] = {
+              ...newShows[booking.movieTitle],
+              numberOfTickets:
+                booking.numberOfTickets +
+                newShows[booking.movieTitle].numberOfTickets,
+              totalAmount:
+                booking.totalAmount + newShows[booking.movieTitle].totalAmount,
+            };
+          } else {
+            newShows[booking.movieTitle] = booking;
+          }
+        }
+        setCurrentShows(newShows);
+        setTotalRevenue(total);
+        setfetchingBookings(false);
+      } catch (err) {
+        console.log("Error fetching Bookings " + err);
+      }
+    };
+    getBookings();
+  }, []);
+
+  useEffect(() => {}, [fetchingBookings]);
+
+  // handles creating a new movie
   const onSubmit = async (data) => {
     if (isCreating) return;
     setIsCreating(true);
 
     try {
       const response = await fetch(
-        "https://www.moviebookingsystem.xyz/api/movies",
+        "https://www.moviebookingsystem.xyz/api/shows",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(data),
         }
@@ -74,7 +124,7 @@ const AdminPage = () => {
 
       const result = await response.json();
       if (response.ok) {
-        navigate(`/movie/${result.id}`)
+        navigate(`/movie/${result.id}`);
       } else {
         setCreateError(result.message);
       }
@@ -84,10 +134,6 @@ const AdminPage = () => {
     }
 
     setIsCreating(false);
-  };
-
-  const handleTimeRangeChange = async (e) => {
-    await setTimeRange(e.target.value);
   };
 
   return (
@@ -101,16 +147,6 @@ const AdminPage = () => {
           {/*Overview and Dropdown */}
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-black text-xl">Overview</h2>
-            <select
-              value={timeRange}
-              onChange={handleTimeRangeChange}
-              className="border border-gray-300 rounded px-3 py-2 bg-white shadow-sm"
-            >
-              <option value="Today">Today</option>
-              <option value="This Week">This Week</option>
-              <option value="This Month">This Month</option>
-              <option value="Overall">Overall</option>
-            </select>
           </div>
           {/* Statistics */}
           <div className="grid grid-cols-3 divide-x-2 divide-gray-300">
@@ -119,12 +155,12 @@ const AdminPage = () => {
               <p className="text-3xl font-bold">1000</p>
             </div>
             <div className="flex flex-col text-left px-6">
-              <h3 className="text-lg text-gray-400">Total Movies</h3>
-              <p className="text-3xl font-bold">500</p>
+              <h3 className="text-lg text-gray-400">Showings Count</h3>
+              <p className="text-3xl font-bold">{totalMovies}</p>
             </div>
             <div className="flex flex-col text-left pl-6">
               <h3 className="text-lg text-gray-400">Total Revenue</h3>
-              <p className="text-3xl font-bold">$50,000</p>
+              <p className="text-3xl font-bold">${totalRevenue}</p>
             </div>
           </div>
         </div>
@@ -135,54 +171,40 @@ const AdminPage = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-4">
           Currently Playing Movies
         </h1>
-        <div className="relative rounded-xl bg-[#ececec] shadow-xl">
-          <div className=" gird-flow-row gap-6 divide-y-2">
-            {/* column titles */}
-            <div className="grid grid-cols-[1fr_180px_240px_130px_150px] divide-x-2 pt-4">
-              <div className="flex flex-col text-left px-6">
-                <h3 className="text-lg text-black font-bold">Movie Title</h3>
-              </div>
-              <div className="flex flex-col text-left px-4 font-bold">
-                <h3 className="text-lg text-black">Theater</h3>
-              </div>
-              <div className="flex flex-col text-left px-4 font-bold">
-                <h3 className="text-lg text-black">Start Time</h3>
-              </div>
-              <div className="flex flex-col text-left px-4 font-bold">
-                <h3 className="text-lg text-black">Run Time</h3>
-              </div>
-              <div className="flex flex-col text-left px-4 font-bold">
-                <h3 className="text-lg text-black">Tickets Sold</h3>
-              </div>
-            </div>
-
-            {/* movie mapping */}
-            {movies.map((movie, index) => {
-              const backgroundColor =
-                index % 2 === 0 ? "bg-gray-100" : "bg-white";
-              return (
-                <div
-                  className={`grid grid-cols-[1fr_180px_240px_130px_150px] divide-x-2 ${backgroundColor}`}
-                >
-                  <div className="flex flex-col text-left px-4 py-2">
-                    <p className="text-black">{movie.title}</p>
-                  </div>
-                  <div className="flex flex-col text-left px-4 py-2">
-                    <p className="text-black">{movie.theater}</p>
-                  </div>
-                  <div className="flex flex-col text-left px-4 py-2">
-                    <p className="text-black">{movie.startTime}</p>
-                  </div>
-                  <div className="flex flex-col text-left px-4 py-2">
-                    <p className="text-black">{movie.runTime}</p>
-                  </div>
-                  <div className="flex flex-col text-left px-4 py-2">
-                    <p className="text-black">{movie.ticketsSold}</p>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="rounded-xl bg-gray-100 shadow-xl overflow-hidden">
+          {/* Column headers */}
+          <div className="grid grid-cols-5 bg-[#ececec] font-bold text-black">
+            <div className="p-4">Movie Title</div>
+            <div className="p-4 border-l border-gray-300">Theater</div>
+            <div className="p-4 border-l border-gray-300">Start Time</div>
+            <div className="p-4 border-l border-gray-300">Tickets Sold</div>
+            <div className="p-4 border-l border-gray-300">Total Revenue</div>
           </div>
+
+          {/* Movie rows */}
+          {Object.entries(currentShows).map(([title, showing], index) => {
+            const bg = index % 2 === 0 ? "bg-white" : "bg-[#ececec]";
+            return (
+              <div
+                key={index}
+                className={`grid grid-cols-5 ${bg} border-t border-gray-300`}
+              >
+                <div className="p-4">{title}</div>
+                <div className="p-4 border-l border-gray-300">
+                  {showing.theaterName || "null"}
+                </div>
+                <div className="p-4 border-l border-gray-300">
+                  {showing.showTime}
+                </div>
+                <div className="p-4 border-l border-gray-300">
+                  {showing.numberOfTickets}
+                </div>
+                <div className="p-4 border-l border-gray-300">
+                  {showing.totalAmount}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -206,7 +228,9 @@ const AdminPage = () => {
             label="Movie Description"
             disabled={isCreating}
             error={errors.Description?.message}
-            {...register("Description", { required: "Movie description is required" })}
+            {...register("Description", {
+              required: "Movie description is required",
+            })}
           />
           <div className="md:grid md:grid-cols-3 space-y-4 md:space-y-0 md:space-x-4">
             <FormInput
@@ -222,7 +246,9 @@ const AdminPage = () => {
               label="Release Date"
               disabled={isCreating}
               error={errors.ReleaseDate?.message}
-              {...register("ReleaseDate", { required: "Release date is required" })}
+              {...register("ReleaseDate", {
+                required: "Release date is required",
+              })}
             />
             <FormInput
               id="Duration"
@@ -231,7 +257,7 @@ const AdminPage = () => {
               disabled={isCreating}
               error={errors.Duration?.message}
               {...register("Duration", {
-                required: "Movie duration is required"
+                required: "Movie duration is required",
               })}
             />
           </div>
@@ -241,7 +267,7 @@ const AdminPage = () => {
             disabled={isCreating}
             error={errors.Director?.message}
             {...register("Director", {
-              required: "Director is required"
+              required: "Director is required",
             })}
           />
           <FormInput
@@ -257,7 +283,9 @@ const AdminPage = () => {
             label="Movie Poster URL"
             disabled={isCreating}
             error={errors.ImageUrl?.message}
-            {...register("ImageUrl", { required: "Movie poster URL is required" })}
+            {...register("ImageUrl", {
+              required: "Movie poster URL is required",
+            })}
           />
 
           <Button
