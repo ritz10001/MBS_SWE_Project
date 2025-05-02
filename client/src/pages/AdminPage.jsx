@@ -1,31 +1,33 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
 import { useForm } from "react-hook-form";
 import FormInput from "../components/FormInput";
 import { useNavigate } from "react-router";
+import { format } from "date-fns";
 
 const AdminPage = () => {
+  // Main form for movie details
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
+    reset: resetMovieForm,
   } = useForm({
     mode: "onBlur",
     reValidateMode: "onBlur",
   });
 
+  
   const navigate = useNavigate();
   const { token } = useAuth();
-  const [currentShows, setCurrentShows] = useState({}); // hash map of movies to data
+  const [currentShows, setCurrentShows] = useState({});
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState(null);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalMovies, setTotalMovies] = useState(0);
-  const [fetchingBookings, setfetchingBookings] = useState(true);
-
-  // handles getting show data from api
+  
+  // Fetch shows data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -45,6 +47,7 @@ const AdminPage = () => {
         }
         const shows = await response.json();
         console.log(shows);
+        setTotalMovies(shows.length);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -52,7 +55,7 @@ const AdminPage = () => {
     fetchData();
   }, []);
 
-  // handles total revenue
+  // Fetch bookings data
   useEffect(() => {
     const getBookings = async () => {
       try {
@@ -71,8 +74,8 @@ const AdminPage = () => {
           return;
         }
         const data = await res.json();
+        console.log(data);
         let total = 0;
-        const date = new Date();
         const newShows = { ...currentShows };
 
         for (let i = 0; i < data.length; i++) {
@@ -102,9 +105,7 @@ const AdminPage = () => {
     getBookings();
   }, []);
 
-  useEffect(() => {}, [fetchingBookings]);
-
-  // handles creating a new movie
+  // Handle main form submission
   const onSubmit = async (data) => {
     if (isCreating) return;
     setIsCreating(true);
@@ -124,12 +125,14 @@ const AdminPage = () => {
 
       const result = await response.json();
       if (response.ok) {
+        // Reset forms and state after successful submission
+        resetMovieForm();
         navigate(`/movie/${result.id}`);
       } else {
         setCreateError(result.message);
       }
     } catch (error) {
-      console.error("Login error", error);
+      console.error("Error creating movie:", error);
       setCreateError("Something went wrong. Try again.");
     }
 
@@ -155,7 +158,7 @@ const AdminPage = () => {
               <p className="text-3xl font-bold">1000</p>
             </div>
             <div className="flex flex-col text-left px-6">
-              <h3 className="text-lg text-gray-400">Showings Count</h3>
+              <h3 className="text-lg text-gray-400">Number of Shows</h3>
               <p className="text-3xl font-bold">{totalMovies}</p>
             </div>
             <div className="flex flex-col text-left pl-6">
@@ -166,7 +169,7 @@ const AdminPage = () => {
         </div>
       </div>
 
-      {/* Admin Panel Add Movies Section */}
+      {/* Currently Playing Movies */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-4">
           Currently Playing Movies
@@ -176,7 +179,7 @@ const AdminPage = () => {
           <div className="grid grid-cols-5 bg-[#ececec] font-bold text-black">
             <div className="p-4">Movie Title</div>
             <div className="p-4 border-l border-gray-300">Theater</div>
-            <div className="p-4 border-l border-gray-300">Start Time</div>
+            <div className="p-4 border-l border-gray-300">Show Time</div>
             <div className="p-4 border-l border-gray-300">Tickets Sold</div>
             <div className="p-4 border-l border-gray-300">Total Revenue</div>
           </div>
@@ -184,6 +187,7 @@ const AdminPage = () => {
           {/* Movie rows */}
           {Object.entries(currentShows).map(([title, showing], index) => {
             const bg = index % 2 === 0 ? "bg-white" : "bg-[#ececec]";
+            const date = new Date(showing.showTime);
             return (
               <div
                 key={index}
@@ -194,13 +198,13 @@ const AdminPage = () => {
                   {showing.theaterName || "null"}
                 </div>
                 <div className="p-4 border-l border-gray-300">
-                  {showing.showTime}
+                  {`${format(new Date(showing.showTime), "Pp")}`}
                 </div>
                 <div className="p-4 border-l border-gray-300">
                   {showing.numberOfTickets}
                 </div>
                 <div className="p-4 border-l border-gray-300">
-                  {showing.totalAmount}
+                  ${showing.totalAmount}
                 </div>
               </div>
             );
@@ -208,11 +212,13 @@ const AdminPage = () => {
         </div>
       </div>
 
-      {/* Admin Panel Add Movies Section */}
-      <div className="">
+      {/* Add New Movie Section */}
+      <div>
         <h1 className="text-2xl md:text-3xl font-bold text-black mb-4">
           Add New Movie
         </h1>
+
+        {/* Main Movie Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
           <FormInput
             id="Title"
@@ -288,14 +294,17 @@ const AdminPage = () => {
             })}
           />
 
+          {/* Submit Movie Button */}
           <Button
             type="submit"
             loading={isCreating}
             width="full"
             variant="primary"
+            className="mx-auto w-sm mt-6"
           >
-            Add Movie
+            "Add Movie"
           </Button>
+
           {createError && (
             <p className="mt-1 text-sm text-red-600">{createError}</p>
           )}

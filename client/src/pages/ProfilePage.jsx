@@ -4,15 +4,25 @@ import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
 import LoadingCircle from "../components/LoadingCircle";
 import ShowingCard from "../components/ShowingCard";
+import { useForm } from "react-hook-form";
 
 const UserPage = () => {
   const { userDetails, userRoles, token } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [localDetails, setLocalDetails] = useState({ ...userDetails });
-
+  const [name, setName] = useState(
+    userDetails.firstName + " " + userDetails.lastName
+  );
   const [bookingsData, setBookingsData] = useState(null);
 
   useEffect(() => {
@@ -39,6 +49,7 @@ const UserPage = () => {
   }, []);
 
   const toggleEditWindow = () => {
+    setLocalDetails(userDetails);
     setIsEditing(!isEditing);
   };
 
@@ -150,9 +161,10 @@ const UserPage = () => {
                 <input
                   type="text"
                   name="userName"
-                  value={localDetails.firstName + " " + localDetails.lastName}
-                  onChange={handleNameChange}
-                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={handleNameChange}
+                  placeholder="First and last name"
                   className="w-full border rounded px-3 py-2 bg-gray-100"
                 />
               </div>
