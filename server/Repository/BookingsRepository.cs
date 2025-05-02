@@ -14,6 +14,16 @@ public class BookingsRepository : GenericRepository<Booking>, IBookingsRepositor
         _context = context;
     }
 
+    public async Task<IEnumerable<Booking>> GetAllBookings()
+    {
+        return await _context.Booking
+            .Include(b => b.Show)
+            .ThenInclude(s => s.Movie)
+            .Include(b => b.Show)
+            .ThenInclude(s => s.Theatre)
+            .Include(b => b.Tickets)
+            .ToListAsync();
+    }   
     public async Task<IEnumerable<Booking>> GetBookingsByUserId(string userId)
     {
         return await _context.Booking
