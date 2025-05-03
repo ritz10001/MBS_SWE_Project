@@ -6,16 +6,20 @@ import Button from "./Button";
 import IsAdmin from "./IsAdmin";
 import FormInput from "./FormInput";
 import LoadingCircle from "./LoadingCircle";
+import { useAuth } from "../contexts/AuthContext";
 
 const MovieDetails = ({ data }) => {
+  const { token } = useAuth();
   const hours = Math.floor(data.duration / 60);
   const minutes = data.duration % 60;
   const rating = Math.round((data.rating ?? 0) / 2);
+  const movieId = data.id;
   const [selectedDate, setSelectedDate] = useState();
   const [selectedShowtime, setSelectedShowtime] = useState();
   const [editingMovie, setEditingMovie] = useState(false);
   const [showtimes, setShowtimes] = useState(data.shows);
   const [isCreating, setIsCreating] = useState(false);
+  const [ticketPrice, setTicketPrice] = useState(null);
 
   const locations = [
     "Lubbock",
@@ -25,6 +29,15 @@ const MovieDetails = ({ data }) => {
     "Snyder",
     "Abilene",
   ];
+
+  const theaterIds = {
+    Lubbock: 1,
+    Amarillo: 2,
+    Levelland: 3,
+    Plainview: 4,
+    Snyder: 5,
+    Abilene: 6,
+  };
 
   const {
     register,
@@ -92,25 +105,60 @@ const MovieDetails = ({ data }) => {
       return res;
     }, {}) || {};
 
-  const handleUpdate = () => {
-    console.log("fart");
-  };
-
   // Handle add showtime submission
-  const onAddShowtime = (data) => {
-    const showtime = {
-      location: data.Location,
-      date: data.Showdate,
-      time: data.Showtime,
-      id: Date.now(), // Unique ID for each showtime
-    };
-
-    setShowtimes([...showtimes, showtime]);
-    resetShowtimeForm();
+  const onAddShowtime = async (show) => {
+    try {
+      setIsCreating(true);
+      const showDateTime = `${show.Showdate}T${show.Showtime}:00`;
+      const newShow = {
+        showTime: showDateTime,
+        theatreId: theaterIds[show.Location],
+        movieId: movieId,
+        ticketPrice: parseFloat(show.TicketPrice),
+        location: show.location,
+      };
+      console.log(newShow);
+      const response = await fetch(
+        "https://www.moviebookingsystem.xyz/api/shows",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newShow),
+        }
+      );
+      if (!response.ok) {
+        console.log("Failed to fetch Shows");
+        return;
+      }
+      const addedShow = await response.json();
+      console.log(stuff);
+      setShowtimes([...showtimes, addedShow]);
+      resetShowtimeForm();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   // Handle removing a showtime
-  const removeShowtime = (id) => {
+  const removeShowtime = async (id) => {
+    const response = await fetch(
+      `https://www.moviebookingsystem.xyz/api/shows/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+    console.log("remove showtime data: " + data);
     setShowtimes(showtimes.filter((showtime) => showtime.id !== id));
   };
 
@@ -210,16 +258,19 @@ const MovieDetails = ({ data }) => {
                     {showtimes.map((showtime, i) => (
                       <div
                         key={showtime.id}
-                        className="flex justify-between items-center bg-white p-2 rounded shadow"
+                        className="grid grid-cols-[6fr_1fr] bg-white p-2 rounded shadow divide-x divide-gray-600"
                       >
-                        <span>
-                          {showtime.location} -{" "}
-                          {format(new Date(showtime.showTime), "Pp")}
-                        </span>
+                        <div className="flex justify-between items-center px-2">
+                          <span>
+                            {showtime.location} -{" "}
+                            {format(new Date(showtime.showTime), "Pp")}
+                          </span>
+                          <span>${showtime.ticketPrice}</span>
+                        </div>
                         <button
                           type="button"
                           onClick={() => removeShowtime(showtime.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-400 hover:text-red-800 pl-2"
                         >
                           Remove
                         </button>
@@ -231,7 +282,7 @@ const MovieDetails = ({ data }) => {
 
               {/* Showtime Form */}
               <div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Location
@@ -239,7 +290,7 @@ const MovieDetails = ({ data }) => {
                     <select
                       id="Location"
                       disabled={isCreating}
-                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm"
                       {...registerShowtime("Location", {
                         required: "Location is required",
                       })}
@@ -265,7 +316,7 @@ const MovieDetails = ({ data }) => {
                       type="time"
                       id="Showtime"
                       disabled={isCreating}
-                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm"
                       {...registerShowtime("Showtime", {
                         required: "Time is required",
                       })}
@@ -284,7 +335,7 @@ const MovieDetails = ({ data }) => {
                       type="date"
                       id="Showdate"
                       disabled={isCreating}
-                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm"
                       {...registerShowtime("Showdate", {
                         required: "Date is required",
                       })}
@@ -294,6 +345,21 @@ const MovieDetails = ({ data }) => {
                         {showtimeErrors.Showdate.message}
                       </p>
                     )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ticket Price (Enter without $)
+                    </label>
+                    <input
+                      type="number"
+                      id="TicketPrice"
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm"
+                      placeholder="$--.--"
+                      disabled={isCreating}
+                      {...registerShowtime("TicketPrice", {
+                        required: "Price is required",
+                      })}
+                    ></input>
                   </div>
                 </div>
 
@@ -306,14 +372,6 @@ const MovieDetails = ({ data }) => {
                   Add Showtime
                 </Button>
               </div>
-              <Button
-                type="button"
-                variant="primary"
-                className="mt-3"
-                onClick={handleUpdate}
-              >
-                Finalize Changes
-              </Button>
             </div>
           </>
         ) : (
