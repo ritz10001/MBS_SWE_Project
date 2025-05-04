@@ -108,19 +108,19 @@ const MovieDetails = ({ data }) => {
     }, {}) || {};
 
   // Handle add showtime submission
-  const onAddShowtime = async (show) => {
+  const onAddShowtime = async (formData) => {
     try {
       setIsCreating(true);
-      const date = new Date(`${show.Showdate}T${show.Showtime}:00`);
+      const date = new Date(`${formData.Showdate}T${formData.Showtime}:00`);
       const showDateTime = format(date, "yyyy-MM-dd'T'HH:mm:ss");
       const newShow = {
         showTime: showDateTime,
-        theatreId: theaterIds[show.Location],
+        theatreId: theaterIds[formData.Location],
         movieId: movieId,
-        ticketPrice: parseFloat(show.TicketPrice),
-        location: show.location,
+        ticketPrice: parseFloat(formData.TicketPrice),
+        location: formData.Location, // Fixed: use formData.Location instead of show.location
       };
-      console.log("payload = " + JSON.stringify(newShow));
+
       const response = await fetch(
         "https://www.moviebookingsystem.xyz/api/shows",
         {
@@ -131,14 +131,16 @@ const MovieDetails = ({ data }) => {
           },
           body: JSON.stringify(newShow),
         }
-      );
+      ).then(console.log("showtime was added"));
       if (!response.ok) {
-        console.log("Failed to fetch Shows");
-        return;
+        console.log("Failed to create showtime");
       }
       const addedShow = await response.json();
+      // Add the returned show from the API to the showtimes state, not the form data
+      addedShow["location"] = formData.Location;
       console.log(addedShow);
-      setShowtimes([...showtimes, show]);
+
+      setShowtimes([...showtimes, addedShow]);
       resetShowtimeForm();
     } catch (err) {
       console.log(err);
@@ -195,7 +197,7 @@ const MovieDetails = ({ data }) => {
     }
   };
 
-  if (isCreating) return <LoadingCircle></LoadingCircle>;
+  if (isCreating) return <LoadingCircle className="w-8 h-8"></LoadingCircle>;
 
   return (
     <>
