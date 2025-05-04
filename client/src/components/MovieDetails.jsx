@@ -7,8 +7,10 @@ import IsAdmin from "./IsAdmin";
 import FormInput from "./FormInput";
 import LoadingCircle from "./LoadingCircle";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router";
 
 const MovieDetails = ({ data }) => {
+  const navigate = useNavigate();
   const { token } = useAuth();
   const hours = Math.floor(data.duration / 60);
   const minutes = data.duration % 60;
@@ -109,7 +111,8 @@ const MovieDetails = ({ data }) => {
   const onAddShowtime = async (show) => {
     try {
       setIsCreating(true);
-      const showDateTime = `${show.Showdate}T${show.Showtime}:00`;
+      const date = new Date(`${show.Showdate}T${show.Showtime}:00`);
+      const showDateTime = format(date, "yyyy-MM-dd'T'HH:mm:ss");
       const newShow = {
         showTime: showDateTime,
         theatreId: theaterIds[show.Location],
@@ -117,7 +120,7 @@ const MovieDetails = ({ data }) => {
         ticketPrice: parseFloat(show.TicketPrice),
         location: show.location,
       };
-      console.log(newShow);
+      console.log("payload = " + JSON.stringify(newShow));
       const response = await fetch(
         "https://www.moviebookingsystem.xyz/api/shows",
         {
@@ -134,8 +137,8 @@ const MovieDetails = ({ data }) => {
         return;
       }
       const addedShow = await response.json();
-      console.log(stuff);
-      setShowtimes([...showtimes, addedShow]);
+      console.log(addedShow);
+      setShowtimes([...showtimes, show]);
       resetShowtimeForm();
     } catch (err) {
       console.log(err);
@@ -146,20 +149,50 @@ const MovieDetails = ({ data }) => {
 
   // Handle removing a showtime
   const removeShowtime = async (id) => {
-    const response = await fetch(
-      `https://www.moviebookingsystem.xyz/api/shows/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    try {
+      const response = await fetch(
+        `https://www.moviebookingsystem.xyz/api/shows/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    const data = await response.json();
-    console.log("remove showtime data: " + data);
-    setShowtimes(showtimes.filter((showtime) => showtime.id !== id));
+      const data = await response.json();
+      console.log("remove showtime data: " + data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      window.location.reload();
+    }
+    // setShowtimes(showtimes.filter((showtime) => showtime.id !== id));
+  };
+
+  const handleDeleteMovie = async () => {
+    try {
+      const response = await fetch(
+        `https://www.moviebookingsystem.xyz/api/movies/${movieId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        console.log("There was an error deleting the movie");
+      }
+      const data = await response.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      navigate(`/`);
+    }
   };
 
   if (isCreating) return <LoadingCircle></LoadingCircle>;
@@ -218,7 +251,14 @@ const MovieDetails = ({ data }) => {
         </div>
         <IsAdmin>
           <div className="text-nowrap flex flex-col gap-2 align-end">
-            <Button variant="danger">Delete Movie</Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                handleDeleteMovie();
+              }}
+            >
+              Delete Movie
+            </Button>
             <Button
               variant="primary"
               onClick={() => {
@@ -255,27 +295,30 @@ const MovieDetails = ({ data }) => {
                     Current Showtimes:
                   </h3>
                   <div className="space-y-2">
-                    {showtimes.map((showtime, i) => (
-                      <div
-                        key={showtime.id}
-                        className="grid grid-cols-[6fr_1fr] bg-white p-2 rounded shadow divide-x divide-gray-600"
-                      >
-                        <div className="flex justify-between items-center px-2">
-                          <span>
-                            {showtime.location} -{" "}
-                            {format(new Date(showtime.showTime), "Pp")}
-                          </span>
-                          <span>${showtime.ticketPrice}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeShowtime(showtime.id)}
-                          className="text-red-400 hover:text-red-800 pl-2"
+                    {showtimes.map((showtime, i) => {
+                      // console.log("PRinting " + JSON.stringify(showtime));
+                      return (
+                        <div
+                          key={showtime.id}
+                          className="grid grid-cols-[6fr_1fr] bg-white p-2 rounded shadow divide-x divide-gray-600"
                         >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
+                          <div className="flex justify-between items-center px-2">
+                            <span>
+                              {showtime.location} -{" "}
+                              {format(new Date(showtime.showTime), "Pp")}
+                            </span>
+                            <span>${showtime.ticketPrice}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeShowtime(showtime.id)}
+                            className="text-red-400 hover:text-red-800 pl-2"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -18,7 +18,6 @@ const AdminPage = () => {
     reValidateMode: "onBlur",
   });
 
-  
   const navigate = useNavigate();
   const { token } = useAuth();
   const [currentShows, setCurrentShows] = useState({});
@@ -26,7 +25,7 @@ const AdminPage = () => {
   const [createError, setCreateError] = useState(null);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalMovies, setTotalMovies] = useState(0);
-  
+
   // Fetch shows data
   useEffect(() => {
     const fetchData = async () => {
@@ -112,7 +111,7 @@ const AdminPage = () => {
 
     try {
       const response = await fetch(
-        "https://www.moviebookingsystem.xyz/api/shows",
+        "https://www.moviebookingsystem.xyz/api/movies",
         {
           method: "POST",
           headers: {
@@ -125,14 +124,12 @@ const AdminPage = () => {
 
       const result = await response.json();
       if (response.ok) {
-        // Reset forms and state after successful submission
-        resetMovieForm();
         navigate(`/movie/${result.id}`);
       } else {
         setCreateError(result.message);
       }
     } catch (error) {
-      console.error("Error creating movie:", error);
+      console.error("Login error", error);
       setCreateError("Something went wrong. Try again.");
     }
 
@@ -302,7 +299,7 @@ const AdminPage = () => {
             variant="primary"
             className="mx-auto w-sm mt-6"
           >
-            "Add Movie"
+            Add Movie
           </Button>
 
           {createError && (
