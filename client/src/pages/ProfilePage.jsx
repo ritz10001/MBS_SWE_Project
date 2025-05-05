@@ -72,6 +72,12 @@ const UserPage = () => {
 
   const saveDetails = () => {
     const updateUserDetails = async () => {
+      if (!token) {
+        console.error("No authentication token available");
+        // Handle missing token (redirect to login, show error, etc.)
+        return;
+      }
+
       setIsLoading(true);
       try {
         const response = await fetch(
@@ -85,18 +91,31 @@ const UserPage = () => {
             body: JSON.stringify(localDetails),
           }
         );
+
+        const data = await response.json();
+
         if (!response.ok) {
-          console.log("Failed to update user data");
+          console.error(
+            "Failed to update user data:",
+            data.message || "Unknown error"
+          );
+          // Show error to user
+          setError(data.message || "Failed to update profile");
           return;
         }
-        const data = await response.json();
-        console.log("Returned: ", data);
+
+        console.log("Profile updated successfully:", data);
+        // Update your app state with the returned data
+        setUserDetails(data.user || data); // Adjust based on your API response
+        setIsEditing(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error updating profile:", error);
+        setError("Network error. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-      setIsEditing(false);
     };
+
     updateUserDetails();
   };
 

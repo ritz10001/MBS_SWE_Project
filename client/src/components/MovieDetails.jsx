@@ -269,7 +269,7 @@ const MovieDetails = ({ data }) => {
                 });
               }}
             >
-              Edit Movie
+              Manage Show
             </Button>
           </div>
         </IsAdmin>

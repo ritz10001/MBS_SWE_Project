@@ -20,6 +20,7 @@ const AdminPage = () => {
 
   const navigate = useNavigate();
   const { token } = useAuth();
+  const [totalTickets, setTotalTickets] = useState(0);
   const [currentShows, setCurrentShows] = useState({});
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState(null);
@@ -75,11 +76,13 @@ const AdminPage = () => {
         const data = await res.json();
         console.log(data);
         let total = 0;
+        let totalTickets = 0;
         const newShows = { ...currentShows };
 
         for (let i = 0; i < data.length; i++) {
           const booking = data[i];
           total += booking.totalAmount;
+          totalTickets += booking.numberOfTickets;
           // Update the shows object directly
           if (newShows[booking.movieTitle]) {
             newShows[booking.movieTitle] = {
@@ -94,6 +97,7 @@ const AdminPage = () => {
             newShows[booking.movieTitle] = booking;
           }
         }
+        setTotalTickets(totalTickets);
         setCurrentShows(newShows);
         setTotalRevenue(total);
         setfetchingBookings(false);
@@ -151,8 +155,8 @@ const AdminPage = () => {
           {/* Statistics */}
           <div className="grid grid-cols-3 divide-x-2 divide-gray-300">
             <div className="flex flex-col text-left pr-6">
-              <h3 className="text-lg text-gray-400">Total Users</h3>
-              <p className="text-3xl font-bold">1000</p>
+              <h3 className="text-lg text-gray-400">Total Tickets</h3>
+              <p className="text-3xl font-bold">{totalTickets}</p>
             </div>
             <div className="flex flex-col text-left px-6">
               <h3 className="text-lg text-gray-400">Number of Shows</h3>
