@@ -12,7 +12,7 @@ const AdminPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset: resetMovieForm,
+    reset,
   } = useForm({
     mode: "onBlur",
     reValidateMode: "onBlur",
@@ -31,81 +31,69 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          "https://www.moviebookingsystem.xyz/api/shows",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) {
-          console.log("Failed to fetch Shows");
-          return;
+        const [showsResponse, bookingsResponse] = await Promise.all([
+          fetch(
+            "https://www.moviebookingsystem.xyz/api/shows",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          ),
+          fetch(
+            "https://www.moviebookingsystem.xyz/api/booking/getAllBookings",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          )
+        ]);
+
+        if (showsResponse.ok) {
+          const shows = await showsResponse.json();
+          setTotalMovies(shows.length);
         }
-        const shows = await response.json();
-        console.log(shows);
-        setTotalMovies(shows.length);
+
+        if (bookingsResponse.ok) {
+          const bookings = await bookingsResponse.json();
+
+          let total = 0;
+          let totalTickets = 0;
+          const newShows = { ...currentShows };
+  
+          for (const booking of bookings) {
+            total += booking.totalAmount;
+            totalTickets += booking.numberOfTickets;
+            // Update the shows object directly
+            if (newShows[booking.movieTitle]) {
+              newShows[booking.movieTitle] = {
+                ...newShows[booking.movieTitle],
+                numberOfTickets:
+                  booking.numberOfTickets +
+                  newShows[booking.movieTitle].numberOfTickets,
+                totalAmount:
+                  booking.totalAmount + newShows[booking.movieTitle].totalAmount,
+              };
+            } else {
+              newShows[booking.movieTitle] = booking;
+            }
+          }
+
+          setTotalTickets(totalTickets);
+          setCurrentShows(newShows);
+          setTotalRevenue(total);
+          setfetchingBookings(false);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-  }, []);
-
-  // Fetch bookings data
-  useEffect(() => {
-    const getBookings = async () => {
-      try {
-        const res = await fetch(
-          "https://www.moviebookingsystem.xyz/api/booking/getAllBookings",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!res.ok) {
-          console.log("Failed to fetch Bookings");
-          return;
-        }
-        const data = await res.json();
-        console.log(data);
-        let total = 0;
-        let totalTickets = 0;
-        const newShows = { ...currentShows };
-
-        for (let i = 0; i < data.length; i++) {
-          const booking = data[i];
-          total += booking.totalAmount;
-          totalTickets += booking.numberOfTickets;
-          // Update the shows object directly
-          if (newShows[booking.movieTitle]) {
-            newShows[booking.movieTitle] = {
-              ...newShows[booking.movieTitle],
-              numberOfTickets:
-                booking.numberOfTickets +
-                newShows[booking.movieTitle].numberOfTickets,
-              totalAmount:
-                booking.totalAmount + newShows[booking.movieTitle].totalAmount,
-            };
-          } else {
-            newShows[booking.movieTitle] = booking;
-          }
-        }
-        setTotalTickets(totalTickets);
-        setCurrentShows(newShows);
-        setTotalRevenue(total);
-        setfetchingBookings(false);
-      } catch (err) {
-        console.log("Error fetching Bookings " + err);
-      }
-    };
-    getBookings();
   }, []);
 
   // Handle main form submission

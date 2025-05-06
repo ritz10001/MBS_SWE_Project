@@ -13,7 +13,7 @@ import IsUser from "./IsUser";
 
 const MovieDetails = ({ data }) => {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, isAuthenticated, userRoles } = useAuth();
   const hours = Math.floor(data.duration / 60);
   const minutes = data.duration % 60;
   const rating = Math.round((data.rating ?? 0) / 2);
@@ -31,23 +31,28 @@ const MovieDetails = ({ data }) => {
     setPopupState(0);
   });
 
-  const locations = [
-    "Lubbock",
-    "Amarillo",
-    "Levelland",
-    "Plainview",
-    "Snyder",
-    "Abilene",
-  ];
+  const [theatres, setTheatres] = useState(null);
 
-  const theaterIds = {
-    Lubbock: 1,
-    Amarillo: 2,
-    Levelland: 3,
-    Plainview: 4,
-    Snyder: 5,
-    Abilene: 6,
-  };
+  useEffect(() => {
+    if (isAuthenticated != true || !userRoles.includes('Administrator')) return;
+
+    const getTheatres = async () => {
+      const response = await fetch('https://www.moviebookingsystem.xyz/api/theatres', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Could not get theatres');
+        return;
+      }
+
+      setTheatres(await response.json());
+    }
+
+    getTheatres();
+  }, [isAuthenticated]);
 
   const {
     register,
@@ -123,10 +128,10 @@ const MovieDetails = ({ data }) => {
       const showDateTime = format(date, "yyyy-MM-dd'T'HH:mm:ss");
       const newShow = {
         showTime: showDateTime,
-        theatreId: theaterIds[formData.Location],
+        theatreId: formData.Location,
         movieId: movieId,
         ticketPrice: parseFloat(formData.TicketPrice),
-        location: formData.Location, // Fixed: use formData.Location instead of show.location
+        location: theatres.find(x => x.id == formData.Location)?.name, // Fixed: use formData.Location instead of show.location
       };
 
       const response = await fetch(
@@ -354,9 +359,9 @@ const MovieDetails = ({ data }) => {
                         })}
                       >
                         <option value="">Select Location</option>
-                        {locations.map((location, index) => (
-                          <option key={index} value={location}>
-                            {location}
+                        {theatres.map((obj, index) => (
+                          <option key={index} value={obj.id}>
+                            {obj.location}
                           </option>
                         ))}
                       </select>
