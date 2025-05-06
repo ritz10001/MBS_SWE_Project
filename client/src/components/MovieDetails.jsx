@@ -81,6 +81,8 @@ const MovieDetails = ({ data }) => {
   const ticketCount = watch("tickets");
 
   // map all showtimes based on date
+  const hasShows = data.shows?.length;
+
   const showsByDate =
     data.shows?.reduce((res, show) => {
       const date = new Date(show.showTime).toISOString().split("T")[0];
@@ -438,100 +440,104 @@ const MovieDetails = ({ data }) => {
               </div>
             </>
           ) : (
-            <>
-              <p className="pb-4">
-                Select a show date and time to continue to ticket checkout.
-              </p>
-              <div className="mb-2">
-                <div className="flex overflow-x-auto pb-2 gap-4 min-h-[48px]">
-                  {availableDates.map((date) => {
-                    return (
-                      <button
-                        key={date}
-                        onClick={() => {
-                          setSelectedDate(date);
-                          setSelectedShowtime(null);
-                        }}
-                        className={`px-4 rounded-t-lg py-2 whitespace-nowrap text-center border-b-4 border-transparent ${
-                          selectedDate === date
-                            ? "border-b-blue-500 bg-gray-100"
-                            : "cursor-pointer transition-colors border-b-gray-300 hover:bg-gray-100 hover:border-b-gray-800 text-gray-900"
-                        }`}
-                      >
-                        {format(new Date(date), "MMMM d")}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-[min-content_1fr] gap-x-6 gap-y-3 items-center">
-                {Object.entries(showsByLocation).map(([location, shows]) => (
-                  <>
-                    <div className="text-lg font-bold text-nowrap">
-                      {location}
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                      {shows.map((show) => (
+            hasShows ? (
+              <>
+                <p className="pb-4">
+                  Select a show date and time to continue to ticket checkout.
+                </p>
+                <div className="mb-2">
+                  <div className="flex overflow-x-auto pb-2 gap-4 min-h-[48px]">
+                    {availableDates.map((date) => {
+                      return (
                         <button
-                          key={show.id}
-                          className={`rounded-xl border-2 py-1.5 px-4 transition-colors cursor-pointer ${
-                            show.id == selectedShowtime
-                              ? "bg-blue-500 border-blue-500 text-white"
-                              : "border-gray-300 hover:bg-gray-100"
-                          }`}
+                          key={date}
                           onClick={() => {
-                            if (selectedShowtime == show.id)
-                              setSelectedShowtime(null);
-                            else setSelectedShowtime(show.id);
+                            setSelectedDate(date);
+                            setSelectedShowtime(null);
                           }}
+                          className={`px-4 rounded-t-lg py-2 whitespace-nowrap text-center border-b-4 border-transparent ${
+                            selectedDate === date
+                              ? "border-b-blue-500 bg-gray-100"
+                              : "cursor-pointer transition-colors border-b-gray-300 hover:bg-gray-100 hover:border-b-gray-800 text-gray-900"
+                          }`}
                         >
-                          <div>{format(new Date(show.showTime), "p")}</div>
+                          {format(new Date(date), "MMMM d")}
                         </button>
-                      ))}
-                    </div>
-                  </>
-                ))}
-              </div>
-              <div className="py-4">
-                <FormInput
-                  id="tickets"
-                  type="number"
-                  className="sm:w-15"
-                  label="Number of tickets"
-                  error={errors.tickets?.message} // Display validation error message
-                  disabled={!selectedShowtime}
-                  {...register("tickets", {
-                    max: {
-                      value: 10,
-                      message: "You can only purchase up to 10 tickets.",
-                    },
-                    min: {
-                      value: 1,
-                      message: "You must purchase at least 1 ticket.",
-                    },
-                    valueAsNumber: true,
-                  })}
-                  max={10}
-                  min={1}
-                />
-              </div>
-              <div className="flex justify-center">
-                <Button
-                  variant="primary"
-                  className="mt-6 w-full md:w-auto"
-                  disabled={
-                    !selectedShowtime || ticketCount > 10 || ticketCount < 1
-                  }
-                  href={
-                    selectedShowtime && ticketCount > 0 && ticketCount <= 10
-                      ? `/checkout?movieId=${data.id}&showId=${selectedShowtime}&tickets=${ticketCount}`
-                      : null
-                  }
-                >
-                  Continue to Checkout
-                </Button>
-              </div>
-            </>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-[min-content_1fr] gap-x-6 gap-y-3 items-center">
+                  {Object.entries(showsByLocation).map(([location, shows]) => (
+                    <>
+                      <div className="text-lg font-bold text-nowrap">
+                        {location}
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        {shows.map((show) => (
+                          <button
+                            key={show.id}
+                            className={`rounded-xl border-2 py-1.5 px-4 transition-colors cursor-pointer ${
+                              show.id == selectedShowtime
+                                ? "bg-blue-500 border-blue-500 text-white"
+                                : "border-gray-300 hover:bg-gray-100"
+                            }`}
+                            onClick={() => {
+                              if (selectedShowtime == show.id)
+                                setSelectedShowtime(null);
+                              else setSelectedShowtime(show.id);
+                            }}
+                          >
+                            <div>{format(new Date(show.showTime), "p")}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ))}
+                </div>
+                <div className="py-4">
+                  <FormInput
+                    id="tickets"
+                    type="number"
+                    className="sm:w-15"
+                    label="Number of tickets"
+                    error={errors.tickets?.message} // Display validation error message
+                    disabled={!selectedShowtime}
+                    {...register("tickets", {
+                      max: {
+                        value: 10,
+                        message: "You can only purchase up to 10 tickets.",
+                      },
+                      min: {
+                        value: 1,
+                        message: "You must purchase at least 1 ticket.",
+                      },
+                      valueAsNumber: true,
+                    })}
+                    max={10}
+                    min={1}
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <Button
+                    variant="primary"
+                    className="mt-6 w-full md:w-auto"
+                    disabled={
+                      !selectedShowtime || ticketCount > 10 || ticketCount < 1
+                    }
+                    href={
+                      selectedShowtime && ticketCount > 0 && ticketCount <= 10
+                        ? `/checkout?movieId=${data.id}&showId=${selectedShowtime}&tickets=${ticketCount}`
+                        : null
+                    }
+                  >
+                    Continue to Checkout
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="col-span-full text-center text-gray-500 mt-6">No showtimes are available</div>
+            )
           )}
         </div>
       </IsUser>
