@@ -104,7 +104,11 @@ const Header = () => {
 
         {/* mobile header */}
         <div className="md:hidden flex justify-between items-center">
-          <h1 className="text-2xl text-white font-bold">MBS</h1>
+          <h1 className="text-2xl text-white font-bold">
+            <NavLink to="/">
+              MBS
+            </NavLink>
+          </h1>
           <div className="flex items-center gap-4">
             <button 
               onClick={() => {

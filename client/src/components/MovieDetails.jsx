@@ -264,7 +264,7 @@ const MovieDetails = ({ data }) => {
           </div>
         </div>
         <IsAdmin>
-          <div className="text-nowrap flex flex-col gap-2 align-end">
+          <div className="text-nowrap grid grid-cols-2 md:flex md:flex-col gap-2 align-end">
             <Button
               variant="danger"
               onClick={() => {
@@ -494,6 +494,7 @@ const MovieDetails = ({ data }) => {
                   className="sm:w-15"
                   label="Number of tickets"
                   error={errors.tickets?.message} // Display validation error message
+                  disabled={!selectedShowtime}
                   {...register("tickets", {
                     max: {
                       value: 10,
