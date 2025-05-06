@@ -27,6 +27,7 @@ public class ShowsRepository : GenericRepository<Show>, IShowsRepostory
     public async Task<List<Show>> GetAllShows()
     {
         var shows = await _context.Shows
+        .Where(s => s.isActive)
         .Include(s => s.Theatre)
         .ToListAsync();
         return shows;
