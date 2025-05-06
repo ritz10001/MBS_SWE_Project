@@ -58,7 +58,7 @@ public class BookingController : ControllerBase {
         var bookings = records.Select(b => new GetBookingsDTO {
             Id = b.Id,
             BookingDate = b.BookingDate,
-            Tickets = b.Tickets ?? null,
+            NumberOfTickets = b.Tickets?.Count ?? 0,
             TotalAmount = b.TotalAmount,
             ShowTime = b.Show?.ShowTime ?? DateTime.MinValue,
             MovieTitle = b.Show?.Movie?.Title ?? "N/A",
