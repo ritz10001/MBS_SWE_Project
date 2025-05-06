@@ -154,7 +154,7 @@ const UserPage = () => {
 
         {/* EDIT WINDOW */}
         {isEditing && (
-          <div className="absolute top-0 left-0 w-full h-full bg-black/50 z-50 flex justify-center items-center">
+          <div className="fixed top-0 left-0 w-full h-full bg-black/50 z-50 flex justify-center items-center p-10">
             <div ref={editProfileRef} className="relative bg-white p-6 rounded-lg shadow-lg w-96 z-10">
               <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
 

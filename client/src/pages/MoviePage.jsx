@@ -1,5 +1,4 @@
 import MovieDetails from "../components/MovieDetails";
-import Reviews from "../components/Reviews";
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import LoadingCircle from "../components/LoadingCircle";
@@ -41,7 +40,6 @@ const MoviePage = () => {
       <title>{`${movieData.title} | MBS`}</title>
       <div className="max-w-5xl mx-auto py-8 px-4">
         <MovieDetails data={movieData} />
-        <Reviews data={movieData} />
       </div>
     </>
   );
