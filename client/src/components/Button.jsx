@@ -56,6 +56,7 @@ export default function Button({ href, icon, ...props }) {
   const component = (
     <Content
       {...props}
+      type={props.type ?? 'button'}
       className={cx(styles(props), props.className)}
       disabled={props.disabled || props.loading}
     >
