@@ -9,7 +9,7 @@ const ShowingCard = ({
   theatreLocation,
   showTime,
   ticketCount,
-  barcodeValue,
+  barcodes,
   bookingId
 }) => {
   return (
@@ -52,24 +52,28 @@ const ShowingCard = ({
           </div>
         </div>
       </div>
-      {barcodeValue && (
+      {barcodes && (
         <div className="flex flex-col justify-center items-center border-t border-gray-300 pt-2">
           <div className="text-bold">
-            Display barcode at theater to check in
+            Display the following barcode{barcodes.length == 1 ? '' : 's'} at the theater to check in
           </div>
-          <Barcode
-            value={barcodeValue}
-            width={2}
-            height={70}
-            background="#ececec"
-            className="print:hidden"
-          />
-          <Barcode
-            value={barcodeValue}
-            width={2}
-            height={100}
-            className="hidden print:block"
-          />
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+            {barcodes.map(barcode => <>
+              <Barcode
+                value={barcode}
+                width={2}
+                height={70}
+                background="#ececec"
+                className="print:hidden"
+              />
+              <Barcode
+                value={barcode}
+                width={2}
+                height={100}
+                className="hidden print:block"
+              />
+            </>)}
+          </div>
         </div>
       )}
     </div>

@@ -86,7 +86,7 @@ const PurchaseConfirmationPage = () => {
           theatreLocation={bookingData.theaterLocation}
           showTime={bookingData.showTime}
           ticketCount={ticketCount}
-          barcodeValue={bookingData.tickets.map(ticket => ticket.ticketCode)}
+          barcodes={bookingData.tickets.map(ticket => ticket.ticketCode)}
         />
         <div className="flex gap-2 items-center justify-center mt-8">
           <Button
