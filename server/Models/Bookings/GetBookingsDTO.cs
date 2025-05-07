@@ -12,5 +12,6 @@ public class GetBookingsDTO
     public decimal TotalAmount { get; set; }
     public DateTime ShowTime { get; set; }
     public string MovieTitle { get; set; }
+    public string MovieImageUrl { get; set; }
     public string? UserId { get; set; }
 }
