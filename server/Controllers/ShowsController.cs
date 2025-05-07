@@ -54,6 +54,7 @@ public class ShowsController : ControllerBase {
     [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<Show>> PostShow(CreateShowDTO createShowDTO) {
         var show = _mapper.Map<Show>(createShowDTO);
+        show.isActive = true;
         await _showsRepostory.AddAsync(show);
         return CreatedAtAction("GetShow", new { id = show.Id }, show);
     }

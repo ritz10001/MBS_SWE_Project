@@ -62,6 +62,7 @@ public class BookingController : ControllerBase {
             TotalAmount = b.TotalAmount,
             ShowTime = b.Show?.ShowTime ?? DateTime.MinValue,
             MovieTitle = b.Show?.Movie?.Title ?? "N/A",
+            TheaterLocation = b.Show?.Theatre?.Location ?? "N/A",
             TheaterName = b.Show?.Theatre?.Name ?? "N/A",
             UserId = b.UserId
         }).ToList();

@@ -1,29 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaPhone } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/Button";
 import LoadingCircle from "../components/LoadingCircle";
 import ShowingCard from "../components/ShowingCard";
 import { useForm } from "react-hook-form";
+import useClickOutside from "../util/useClickOutside";
+import FormInput from "../components/FormInput";
 
 const UserPage = () => {
-  const { userDetails, userRoles, token } = useAuth();
+  const { userDetails, userRoles, token, fetchUserDetails } = useAuth();
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     mode: "onBlur",
+    reValidateMode: "onBlur",
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [localDetails, setLocalDetails] = useState({ ...userDetails });
-  const [name, setName] = useState(
-    userDetails.firstName + " " + userDetails.lastName
-  );
   const [bookingsData, setBookingsData] = useState(null);
+
+  const editProfileRef = useRef();
+  useClickOutside(editProfileRef, () => {
+    if (isLoading) return;
+    setIsEditing(false);
+  });
 
   useEffect(() => {
     const fetchBookingsData = async () => {
@@ -48,76 +54,56 @@ const UserPage = () => {
     fetchBookingsData();
   }, []);
 
-  const toggleEditWindow = () => {
-    setLocalDetails(userDetails);
-    setIsEditing(!isEditing);
-  };
+  const saveDetails = async (data) => {
+    setError(null);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setLocalDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
-  };
+    if (!token) {
+      console.error("No authentication token available");
+      // Handle missing token (redirect to login, show error, etc.)
+      return;
+    }
 
-  const handleNameChange = (e) => {
-    const [firstName, lastName] = e.target.value.split(" ");
-    setLocalDetails((prevDetails) => ({
-      ...prevDetails,
-      firstName: firstName,
-      lastName: lastName,
-    }));
-  };
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        "https://www.moviebookingsystem.xyz/api/user/update-profile",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
-  const saveDetails = () => {
-    const updateUserDetails = async () => {
-      if (!token) {
-        console.error("No authentication token available");
-        // Handle missing token (redirect to login, show error, etc.)
+      if (!response.ok) {
+        const responseMessage = await response.text();
+        setError(responseMessage || "Failed to update profile");
         return;
       }
 
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          "https://www.moviebookingsystem.xyz/api/user/update-profile",
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(localDetails),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error(
-            "Failed to update user data:",
-            data.message || "Unknown error"
-          );
-          // Show error to user
-          setError(data.message || "Failed to update profile");
-          return;
-        }
-
-        console.log("Profile updated successfully:", data);
-        // Update your app state with the returned data
-        setUserDetails(data.user || data); // Adjust based on your API response
-        setIsEditing(false);
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        setError("Network error. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    updateUserDetails();
+      console.log("Profile updated successfully:", data);
+      fetchUserDetails();
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setError("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const openEditForm = () => {
+    reset({
+      FirstName: userDetails.firstName,
+      LastName: userDetails.lastName,
+      PhoneNumber: userDetails.phoneNumber,
+      Address: userDetails.address
+    })
+    setError(null);
+    setIsEditing(true);
+  }
 
   return (
     <>
@@ -157,7 +143,7 @@ const UserPage = () => {
               </div>
             </div>
             <Button
-              onClick={toggleEditWindow}
+              onClick={openEditForm}
               variant="primary"
               className="absolute top-4 right-4 px-4"
             >
@@ -168,89 +154,91 @@ const UserPage = () => {
 
         {/* EDIT WINDOW */}
         {isEditing && (
-          <div className="absolute top-0 left-0 w-full h-full bg-opacity-50 flex justify-center items-center">
-            <div className="relative bg-white p-6 rounded shadow-lg w-96 z-10">
+          <div className="fixed top-0 left-0 w-full h-full bg-black/50 z-50 flex justify-center items-center p-10">
+            <div ref={editProfileRef} className="relative bg-white p-6 rounded-lg shadow-lg w-96 z-10">
               <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
 
               {/* Name Field */}
-              <div className="mb-4 flex items-center">
-                <div className="flex items-center justify-center w-10">
-                  <FaUser className="text-gray-500" />
+              <form onSubmit={handleSubmit(saveDetails)} className="space-y-4">
+                <div className="flex gap-4">
+                  <FormInput
+                    id="FirstName"
+                    label="First Name"
+                    disabled={isLoading}
+                    error={errors.FirstName?.message}
+                    {...register("FirstName", {
+                      required: "First name is required",
+                    })}
+                  />
+                  <FormInput
+                    id="LastName"
+                    label="Last Name"
+                    disabled={isLoading}
+                    error={errors.LastName?.message}
+                    {...register("LastName", { required: "Last name is required" })}
+                  />
                 </div>
-                <input
-                  type="text"
-                  name="userName"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onBlur={handleNameChange}
-                  placeholder="First and last name"
-                  className="w-full border rounded px-3 py-2 bg-gray-100"
-                />
-              </div>
 
-              {/* Address Field */}
-              <div className="mb-4 flex items-center">
-                <div className="flex items-center justify-center w-10">
-                  <FaHome className="text-gray-500" />
-                </div>
-                <input
-                  type="text"
-                  name="address"
-                  value={localDetails.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter your address"
-                  className="w-full border rounded px-3 py-2 bg-gray-100"
-                />
-              </div>
-
-              {/* Email Field */}
-              <div className="mb-4 flex items-center">
-                <div className="flex items-center justify-center w-10">
-                  <FaEnvelope className="text-gray-500" />
-                </div>
-                <input
-                  type="email"
-                  name="email"
-                  value={localDetails.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email"
-                  className="w-full border rounded px-3 py-2 bg-gray-100"
-                />
-              </div>
-
-              {/* Phone Field */}
-              <div className="mb-4 flex items-center">
-                <div className="flex items-center justify-center w-10">
-                  <FaPhone className="text-gray-500" />
-                </div>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={localDetails.phoneNumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter your phone number"
-                  className="w-full border rounded px-3 py-2 bg-gray-100"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  onClick={toggleEditWindow}
-                  className="px-4 py-2"
-                  variant="default"
+                <FormInput
+                  id="PhoneNumber"
+                  type="tel"
+                  label="Phone Number"
                   disabled={isLoading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={saveDetails}
-                  className="px-4 py-2"
-                  variant="primary"
+                  error={errors.PhoneNumber?.message}
+                  {...register("PhoneNumber", {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10}$/,
+                      message: "Please enter a valid 10-digit phone number",
+                    },
+                  })}
+                />
+                <FormInput
+                  id="Address"
+                  type="text"
+                  label="Home Address"
                   disabled={isLoading}
-                >
-                  Update Profile
-                </Button>
-              </div>
+                  error={errors.Address?.message}
+                  {...register("Address", { required: "Address is required" })}
+                />
+                <FormInput
+                  id="CurrentPassword"
+                  type="password"
+                  label="Current Password"
+                  disabled={isLoading}
+                  error={errors.CurrentPassword?.message}
+                  {...register("CurrentPassword", {
+                    required: "Current password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters",
+                    },
+                  })}
+                />
+
+                <div className="flex justify-end gap-2">
+                  <Button
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2"
+                    variant="default"
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    loading={isLoading}
+                    className="px-4 py-2"
+                    variant="primary"
+                  >
+                    Update Profile
+                  </Button>
+                </div>
+                {error && (
+                  <p className="mt-1 text-sm text-red-600 text-right">{error}</p>
+                )}
+              </form>
+
             </div>
           </div>
         )}
