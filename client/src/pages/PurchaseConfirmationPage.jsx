@@ -5,33 +5,64 @@ import Barcode from "react-barcode";
 import Button from "../components/Button";
 import { useLocation, Navigate } from "react-router";
 import LoadingCircle from "../components/LoadingCircle";
+import { useAuth } from "../contexts/AuthContext";
+import ShowingCard from "../components/ShowingCard";
 
 const PurchaseConfirmationPage = () => {
+  const { isAuthenticated, token } = useAuth();
+
   const location = useLocation();
-  const movie = location?.state;
+  const params = new URLSearchParams(location.search);
 
-  const [movieDetails, setMovieDetails] = useState(null);
-  const [ticketCount, setTicketCount] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const bookingId = params.get("bookingId");
 
-  useEffect(() => {
-    if (movie) {
-      setMovieDetails(movie.showData);
-      setTicketCount(movie.ticketCount);
-    }
-    setLoading(false);
-  }, [movie]);
+  const [bookingData, setBookingData] = useState(null);
 
   const handlePrint = () => {
     window.print();
   };
 
-  if (loading)
+  const fetchBookingData = async () => {
+    try {
+      const response = await fetch(
+        `https://www.moviebookingsystem.xyz/api/booking/getBooking/${bookingId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok)
+        throw new Error("Failed to fetch booking data" + response.status);
+      const bookingData = await response.json();
+      setBookingData(bookingData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated == null) return;
+
+    if (bookingId) {
+      fetchBookingData();
+    } else {
+      setBookingData(null);
+    }
+  }, [bookingId, isAuthenticated]);
+
+  if (isAuthenticated == null || !bookingData)
     return (
       <div className="flex justify-center py-40">
         <LoadingCircle className="w-8 h-8" />
       </div>
     );
+
+  if (!bookingId) return <Navigate to="/profile" replace />;
+
+  const ticketCount = bookingData.tickets?.length ?? 0;
 
   return (
     <>
@@ -49,74 +80,28 @@ const PurchaseConfirmationPage = () => {
         </div>
       </div>
       <div className="max-w-5xl mx-auto px-4 flex flex-col items-center justify-center">
-        <div className="rounded-xl bg-[#ececec] shadow-xl px-4 py-4 grid gap-y-2 divide-y-2 divide-gray-300 print:shadow-none print:w-full print:divide-y-0">
-          {/* Top Row */}
-          <div className="grid grid-cols-[17%_1fr] gap-x-4 pb-4 print:grid-cols-1 print:justify-center print:items-center">
-            <img
-              src={movieDetails.movieImageUrl}
-              alt="Karate Kid Legends"
-              className="w-auto h-auto rounded-lg shadow-lg print:hidden"
-            />
-            <div className="flex flex-col justify-between print:justify-center">
-              <div>
-                <div className="font-bold text-black text-xl">
-                  {movieDetails.movieTitle}
-                </div>
-                <span className="text-gray-500">2025</span>
-              </div>
-              <div className="text-black mt-4">
-                <div className="flex items-center gap-2">
-                  <FaLocationPin className="print:hidden" />
-                  <span>{movieDetails.theatreLocation}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaClock className="print:hidden" />
-                  <span>{format(new Date(movieDetails.showTime), "PPPp")}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaStar className="print:hidden" />
-                  <span>
-                    {ticketCount} ticket{ticketCount == 1 ? "" : "s"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Bottom Row with Barcode */}
-          <div className="flex flex-col justify-center items-center">
-            <div className="text-bold">
-              Display barcode at theater to check in
-            </div>
-            <Barcode
-              value={{
-                ticketCount: ticketCount,
-                movieDetails: movieDetails,
-              }}
-              width={2}
-              height={100}
-              background="#ececec"
-              text="Ticket"
-              className="print:hidden"
-            />
-            <Barcode
-              value={{
-                ticketCount: ticketCount,
-                movieDetails: movieDetails,
-              }}
-              width={2}
-              height={100}
-              text="Ticket"
-              className="hidden print:block"
-            />
-          </div>
-        </div>
-        <div className="items-center justify-center mt-8">
+        <ShowingCard
+          title={bookingData.movieTitle}
+          imageUrl={bookingData.movieImageUrl}
+          theatreLocation={bookingData.theaterLocation}
+          showTime={bookingData.showTime}
+          ticketCount={ticketCount}
+          barcodeValue={bookingData.tickets.map(ticket => ticket.ticketCode)}
+        />
+        <div className="flex gap-2 items-center justify-center mt-8">
           <Button
             variant="primary"
             onClick={handlePrint}
             className="print:hidden"
           >
             Print Ticket
+          </Button>
+          <Button
+            variant="default"
+            className="print:hidden"
+            href="/profile"
+          >
+            View All Tickets
           </Button>
         </div>
       </div>

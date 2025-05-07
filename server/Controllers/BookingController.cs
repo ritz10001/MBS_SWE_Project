@@ -27,11 +27,21 @@ public class BookingController : ControllerBase {
     [HttpGet("getAllBookings")]
     [Authorize(Roles = "Administrator")] // Only Admins can access this endpoint
     public async Task<ActionResult<IEnumerable<GetBookingsDTO>>> GetBookings() {
-        var records = await _bookingRepository.GetAllAsync();
+        var records = await _bookingRepository.GetAllBookings();
         if (records == null) {
             return NotFound();
         }
-        var bookings = _mapper.Map<List<GetBookingsDTO>>(records);
+        // var bookings = _mapper.Map<List<GetBookingsDTO>>(records);
+        var bookings = records.Select(b => new GetBookingsDTO {
+            Id = b.Id,
+            BookingDate = b.BookingDate,
+            NumberOfTickets = b.Tickets?.Count ?? 0,
+            TotalAmount = b.TotalAmount,
+            ShowTime = b.Show?.ShowTime ?? DateTime.MinValue,
+            MovieTitle = b.Show?.Movie?.Title ?? "N/A",
+            TheaterName = b.Show?.Theatre?.Name ?? "N/A",
+            UserId = b.UserId
+        }).ToList();
         return Ok(bookings);
     }
 
@@ -79,8 +89,10 @@ public class BookingController : ControllerBase {
         var tickets = await _ticketRepository.GetTicketsByBookingId(id);
         var booking = _mapper.Map<GetBookingDTO>(record);
         booking.Tickets = _mapper.Map<List<GetTicketsDTO>>(tickets);
+        booking.MovieImageUrl = record.Show.Movie.ImageUrl;
         booking.MovieTitle = record.Show.Movie.Title;
         booking.ShowTime = record.Show.ShowTime;
+        booking.TheaterLocation = record.Show.Theatre.Location;
         booking.TheaterName = record.Show.Theatre.Name;
         return Ok(booking);
     }  

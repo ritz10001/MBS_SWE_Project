@@ -39,8 +39,7 @@ public static class SeedHelper {
     {
         var shows = new List<Show>();
         var rnd = new Random();
-        
-        var baseShowTimes = new[] { 10, 13, 16, 19 }; // 10am, 1pm, 4pm, 7pm (more natural gaps)
+        var baseShowTimes = new[] { 10, 13, 16, 19 }; // 10am, 1pm, 4pm, 7pm
 
         foreach (var movie in movies)
         {
@@ -51,18 +50,36 @@ public static class SeedHelper {
                     int baseHour = baseShowTimes[rnd.Next(baseShowTimes.Length)];
 
                     // Small random offset: between -15 to +30 minutes
-                    int minuteOffset = rnd.Next(-15, 31); // -15, 0, +15, +30 min
+                    int minuteOffset = rnd.Next(-15, 31);
 
-                    // Adjusted showtime
-                    var showTime = DateTime.Today
+                    var rawShowTime = DateTime.Today
                         .AddDays(dayOffset)
                         .AddHours(baseHour)
                         .AddMinutes(minuteOffset);
 
+                    // Now ROUND the minutes to nearest 5
+                    int roundedMinutes = (int)(Math.Round(rawShowTime.Minute / 5.0) * 5);
+
+                    // Handle if roundedMinutes == 60
+                    if (roundedMinutes == 60)
+                    {
+                        rawShowTime = rawShowTime.AddHours(1);
+                        roundedMinutes = 0;
+                    }
+
+                    var finalShowTime = new DateTime(
+                        rawShowTime.Year,
+                        rawShowTime.Month,
+                        rawShowTime.Day,
+                        rawShowTime.Hour,
+                        roundedMinutes,
+                        0
+                    );
+
                     var show = new Show
                     {
-                        ShowTime = showTime,
-                        TicketPrice = 15 + rnd.Next(0, 11),
+                        ShowTime = finalShowTime,
+                        TicketPrice = 15 + rnd.Next(0, 11), // 15 to 25 dollars
                         isActive = true,
                         TheatreId = theatreId,
                         MovieId = movie.Id

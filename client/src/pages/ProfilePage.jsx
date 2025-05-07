@@ -54,6 +54,9 @@ const UserPage = () => {
     fetchBookingsData();
   }, []);
 
+  const upcomingBookings = bookingsData?.filter(booking => Date.now() < (new Date(booking.showTime).getTime() + 1_000 * 60 * 3)) ?? [];
+  const pastBookings = bookingsData?.filter(booking => Date.now() > (new Date(booking.showTime).getTime() + 1_000 * 60 * 3)) ?? [];
+
   const saveDetails = async (data) => {
     setError(null);
 
@@ -246,71 +249,60 @@ const UserPage = () => {
 
       {/* MOVIE HISTORY */}
       <div className="max-w-5xl mx-auto py-8 px-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
-          Movie Purchase History
-        </h1>
-        {!bookingsData && (
+        <h2 className="text-xl md:text-2xl font-bold text-black pb-2 border-b border-gray-500 mb-2">My Upcoming Shows</h2>
+        {bookingsData ? (
+          upcomingBookings.length ? (
+            <div className="space-y-4">
+              {upcomingBookings.map((booking, index) => {
+                return (
+                  <ShowingCard
+                    key={index}
+                    title={booking.movieTitle}
+                    imageUrl={booking.movieImageUrl}
+                    theatreLocation={booking.theaterLocation}
+                    showTime={booking.showTime}
+                    ticketCount={booking.numberOfTickets}
+                    bookingId={booking.id}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="col-span-full text-center text-gray-500 mt-6">No upcoming shows found</div>
+          )
+        ) : (
           <div className="flex justify-center py-20">
             <LoadingCircle className="w-8 h-8" />
           </div>
         )}
-        {bookingsData && !bookingsData.length && (
-          <div className="flex justify-center py-20">
-            <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
-              No bookings found
-            </h1>
-          </div>
-        )}
-        {bookingsData && bookingsData.length && (
-          <div className="space-y-4">
-            {bookingsData.map((booking, index) => {
-              return (
-                <ShowingCard
-                  key={index}
-                  title={booking.movieTitle}
-                  imageUrl={booking.movieImageUrl}
-                  theatreLocation={booking.theatreLocation} // this doesn't display location
-                  showTime={booking.showTime}
-                  ticketCount={booking.numberOfTickets}
-                />
-              );
-            })}
-          </div>
-        )}
-        {/*movieHistory.map((movie, index) => (
-          <div
-            key={index}
-            className="rounded-xl bg-[#ececec] shadow-xl px-4 py-4 grid grid-cols-[17%_1fr] gap-4 mb-4"
-          >
-            <img
-              src={movie.poster}
-              alt={movie.title}
-              className="w-auto h-auto rounded-lg shadow-lg"
-            />
-            <div className="flex flex-col justify-between">
-              <div>
-                <div className="font-bold text-black text-xl">
-                  {movie.title}
-                </div>
-                <span className="text-gray-500">{movie.year}</span>
-              </div>
-              <div className="text-black mt-4">
-                <div className="flex items-center gap-2">
-                  <FaLocationPin />
-                  <span>{movie.location}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaClock />
-                  <span>{movie.date}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaStar />
-                  <span>{movie.tickets} tickets</span>
-                </div>
-              </div>
+      </div>
+      
+      <div className="max-w-5xl mx-auto py-8 px-4">
+        <h2 className="text-xl md:text-2xl font-bold text-black pb-2 border-b border-gray-500 mb-2">My Past Shows</h2>
+        {bookingsData ? (
+          pastBookings.length ? (
+            <div className="space-y-4">
+              {pastBookings.map((booking, index) => {
+                return (
+                  <ShowingCard
+                    key={index}
+                    title={booking.movieTitle}
+                    imageUrl={booking.movieImageUrl}
+                    theatreLocation={booking.theaterLocation}
+                    showTime={booking.showTime}
+                    ticketCount={booking.numberOfTickets}
+                  />
+                );
+              })}
             </div>
+          ) : (
+            <div className="col-span-full text-center text-gray-500 mt-6">No past shows found</div>
+          )
+        ) : (
+          <div className="flex justify-center py-20">
+            <LoadingCircle className="w-8 h-8" />
           </div>
-        ))*/}
+        )}
       </div>
     </>
   );
