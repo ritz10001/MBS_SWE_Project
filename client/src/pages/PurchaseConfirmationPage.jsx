@@ -79,7 +79,7 @@ const PurchaseConfirmationPage = () => {
           attendant for easy check-in.
         </div>
       </div>
-      <div className="max-w-5xl mx-auto px-4 flex flex-col items-center justify-center">
+      <div className="max-w-5xl mx-auto">
         <ShowingCard
           title={bookingData.movieTitle}
           imageUrl={bookingData.movieImageUrl}

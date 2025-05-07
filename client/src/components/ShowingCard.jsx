@@ -18,7 +18,7 @@ const ShowingCard = ({
         <img
           src={imageUrl}
           alt={title}
-          className="w-auto h-auto rounded-lg shadow-lg aspect-[2/3] min-h-36"
+          className="w-auto h-auto rounded-lg shadow-lg aspect-[2/3] min-h-36 print:shadow-none"
         />
         <div className="flex flex-col justify-between">
           <div>
@@ -69,7 +69,7 @@ const ShowingCard = ({
               <Barcode
                 value={barcode}
                 width={2}
-                height={100}
+                height={70}
                 className="hidden print:block"
               />
             </>)}
