@@ -79,8 +79,10 @@ public class BookingController : ControllerBase {
         var tickets = await _ticketRepository.GetTicketsByBookingId(id);
         var booking = _mapper.Map<GetBookingDTO>(record);
         booking.Tickets = _mapper.Map<List<GetTicketsDTO>>(tickets);
+        booking.MovieImageUrl = record.Show.Movie.ImageUrl;
         booking.MovieTitle = record.Show.Movie.Title;
         booking.ShowTime = record.Show.ShowTime;
+        booking.TheaterLocation = record.Show.Theatre.Location;
         booking.TheaterName = record.Show.Theatre.Name;
         return Ok(booking);
     }  

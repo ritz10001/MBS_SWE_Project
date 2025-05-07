@@ -74,12 +74,12 @@ const CheckoutPage = () => {
         })
       }
     )
+    const data = await response.json();
     if (!response.ok) {
       setPaymentError("Payment failed. Please try again");
       console.error("Payment failed", response.statusText);
     } else {
-      console.log(await response.json());
-      navigate("/confirmation", { state: { showData, ticketCount } });
+      navigate(`/confirmation?bookingId=${data.bookingId}`, { state: { showData, ticketCount } });
     }
   };
 

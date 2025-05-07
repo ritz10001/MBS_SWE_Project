@@ -73,13 +73,17 @@ public class PaymentsController : ControllerBase {
         booking.PaymentId = payment.Id; // Set the foreign key relationship
         await _bookingRepository.UpdateAsync(booking); // Update the booking with the payment ID
 
-        var ticket = new Ticket
+        for (int i = 0; i < booking.NumberOfTickets; i++)
         {
-            BookingId = booking.Id,
-            TicketCode = GenerateTicketCode(),
-            IssueDate = DateTime.UtcNow
-        };
-        await _ticketsRepository.AddAsync(ticket);
+        // Step 3 : Create tickets for the booking
+            var ticket = new Ticket
+            {
+                BookingId = booking.Id,
+                TicketCode = GenerateTicketCode(),
+                IssueDate = DateTime.UtcNow
+            };
+            await _ticketsRepository.AddAsync(ticket);
+        }
 
         var paymentDTO = _mapper.Map<Payment>(createPaymentDTO);
         return CreatedAtAction(nameof(GetPayment), new { id = paymentDTO.Id }, new PaymentResponseDTO
