@@ -74,7 +74,7 @@ const AdminPage = () => {
           return;
         }
         const data = await res.json();
-        console.log(data);
+        console.log("these are the current bookings" + JSON.stringify(data));
         let total = 0;
         let totalTickets = 0;
         const newShows = { ...currentShows };
